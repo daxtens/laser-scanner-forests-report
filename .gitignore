@@ -1,0 +1,10 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.synctex.gz
+*.toc
+_region_.tex
+*~
+*.pdf
+*.rel
