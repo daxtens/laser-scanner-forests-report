@@ -11,7 +11,9 @@
 \usepackage{gensymb}
 \usepackage{thesis}
 \usepackage{cite,url,citesort}
-
+\usepackage{caption}
+\usepackage[lined,boxed]{algorithm2e}
+\usepackage{enumerate}
 %\usepackage{epstopdf}
 %\usepackage{epsfig}
 %\usepackage{makeidx}
@@ -84,6 +86,8 @@ Abstract!
 
 \chapter{Aims and Contribution}
 \label{cha:aims}
+
+Reproducible research statement!
 
 \chapter{Introduction}
 \label{cha:intro}
@@ -506,16 +510,41 @@ first attempt to fix this was by replacing the scanner with a much
 more capable scanner (see the Mk II: Subsection~\ref{sec:mk-ii}). This
 lead to some improvement but not enough to make the system usable.
 
-It was discovered that the new scanner was outputting occasional
-negative ranges. These were replaced with zeros (and hence discarded).
+The following changes were also required for acceptable outdoor
+performance:
 
-Significant further work revealed that the reason for poor outdoor
-performance was the median filter in the code.
+\begin{description}
+\item[Negative Distances] Error reports from the polar scan matcher node
+  showed that occasionally negative distances were found. Tracing
+  these back, it was discovered that the scanner node itself was
+  outputting negative distances. These were discarded in an early
+  stage of processing, leading to slightly improved performance.
+\item[Median Filter] A close examination of the code revealed that one
+  of the pre-processing steps was a median filter.
 
-\todo{explanation of median filter}
+  The median filter replaces each point with the median of the points
+  around it. Formally, it works as follows:
+  \IncMargin{1em}
+  \begin{algorithm}
+    \KwIn{Laser scan $s$}
+    \KwOut{Laser scan $s'$}
+    \BlankLine
+    \For{$i \leftarrow 0$ \KwTo $(\text{length of }s - 1)$}{
+      \tcp{Collect 5 points: the point and two points either side.}
+      $r \leftarrow s[(i-2) \ldots (i+2)]$ \;
+      $r' \leftarrow \text{bubble\_sort}(r)$ \;
+      \tcp{Replace the point with the central (3rd) point of $r'$}
+      $s'[i] \leftarrow r[2]$ \;
+    }
+    \caption{Psuedo-code for the median filter algorithm}
+  \end{algorithm}
 
-Disabling the median lead to significantly improved outdoor
-performance, up to an acceptable level.
+  While this algorithm works well indoors, where there are long
+  straight runs, the algorithm unfortunately dramatically
+  impedes outdoor performance. Disabling this filter entirely lead to
+  vastly superior outdoor behaviour.
+\end{description}
+
 
 \subsection{Tree Detection \& Localization}
 \label{sec:tree-detection-localization}
@@ -752,29 +781,349 @@ chunksize
 \chapter{Results}
 \label{cha:results}
 
+The system can best be understood by building it up block by
+block. This approach allows the performance of each major component to
+be understood individually.
+
 \section{Polar Scan Matching alone: indoor}
 \label{sec:psm-indoor}
 
-- large chunks - good, then jump; everything goes wrong
+Firstly, we consider just the polar scan matcher by itself, indoors.
 
-- significantly improved when coupled with a SLAM system that comes
-with ROS
+The polar scan matcher provides generally adequate performance inside
+a room, but tends to be subject to drift and jumps. 
 
-- retest with smaller chunks
+This is illustrated in Figure~\ref{fig:psm-indoors}, which was taken
+in the RSISE building at the Australian National University. The laser
+scanner started in the room in the top right corner of the scan, then
+exited the room, walked straight to the corner, then turned. The
+angles should be right angles, rather than the non-right angles
+observed.
+
+It's worth noting that the laser scans tend to go in `blocks':
+matching will be very good for a short period (for example in a room)
+then will have a `jump' where error rises significantly.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{figs/indoor}
+  \caption{Performance of polar scan matcher alone, indoors.}
+  \label{fig:psm-indoors}
+\end{figure}
+
+A few observations can be made about the jumps:
+\begin{itemize}
+\item Part of the reason was traced back to sensor/recording
+  error. \texttt{rosbag}, which was used to record the data, saves the
+  data out in chunks of a certain size. By default, the chunk size is
+  768 KB. Unfortunately, writing that much data out to the CF card
+  used in the onboard computer caused noticeable delay. This was
+  reduced later in development to 256 KB, which reduced the delay.
+\item Performance in corridors was particularly bad. This was at least
+  partially due to the self-similarity of corridors: without either
+  being able to see the end of a corridor or other distinguishing
+  landmarks, and with no IMU or other form of odometry, it becomes
+  difficult to distinguish movement from staying stationary.
+\item Turning corners and leaving rooms seemed to be particularly
+  large sources of error. This could be due to the particularly large
+  number of points changing quickly, with very few points remaining
+  across the turn.
+\end{itemize}
+
+It was also interesting to note that if one of the SLAM systems that
+is available with ROS was added to the system (for example
+\texttt{slam\_gmapping}), performance improved significantly
+indoors. However, the chunking issue identified above still tended to
+cause problems.
+
+As indoor navigation was not a priority, merely an early way to test
+the system, no major work was invested in ironing out defects. Rather,
+the system was tested outdoors.
 
 \section{Polar Scan Matching alone: outdoor}
 \label{sec:psm-outdoor}
 
-- terrible. basically completely useless
+The polar scan matcher was then tested outdoors.
 
-\section{Tree-based localisation}
+Initially, the system was entirely unusable, not detecting motion in
+any usable way whatsoever. Firstly, a greater range laser scanner
+was tried, as explained in Section~\todo{ref}. However, ultimately
+various fixes to the software were required. These are explained in
+Section~\ref{sec:polar-scan-matcher}.
+
+Once those fixes were deployed, the polar scan matcher provided
+estimates which were roughly correct, especially in the short term,
+but which tended to drift unacceptably. The drift was especially
+visible on tree trunks, which became ``blurred'', as shown below in
+Figure~\ref{fig:blur-detailed}. 
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/blurring}
+  \caption{``Blurring'' experienced by uncorrected outdoor polar scan matching.}
+  \label{fig:blur-detailed}
+\end{figure}
+
+The cumulative drift and error is
+significant. Figure~\ref{fig:psm-outdoor} shows the result of walking
+the scanner assembly around a clump of trees at ANU \todo{ref to the
+  particular clump}. The path taken was a loop - the net translation
+should be zero. However, a large translation is observed; trees do not
+stay in the same place and there is lots of noise.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/psm-outdoor}
+  \caption{PSM only, outdoors}
+  \label{fig:psm-outdoor}
+\end{figure}
+
+Evidently further work was required for accurate localisation.
+
+\section{Tree-based localization}
 \label{sec:tree-based-local}
 
-- awesome.
+Adding the tree-based localization described in
+Section~\ref{sec:tree-detection-localization} led to significant
+improvement in results. Two major outdoor locations were tested.
+
+\subsection{Tennis Court}
+\label{sec:tennis-court}
+
+The ``tennis court'' location is a clump of trees near some tennis
+courts on the ANU campus. The trees are pictured in
+Figure~\ref{fig:tennis-trees}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{figs/tennis-1}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/tennis-2}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/tennis-3}\\
+  \caption{Various pictures of the ``tennis court'' clump of trees.\\
+  \textbf{Top:} View from the start of the loop (the dented metal
+  rail).\\
+  \textbf{Middle:} View from mid-way though the loop.\\
+  \textbf{Bottom:} View from towards the end of the loop.}
+  \label{fig:tennis-trees}
+\end{figure}
+
+The hexacopter landing gear assembly was walked in a loop through the
+clump of trees.
+
+The results: the path taken and the map of trees detected is shown in
+Figure~\ref{fig:tennis-results}. \todo{Video and data bag location}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/tennis-results}\\
+  ~\\
+  \includegraphics[width=0.9\textwidth]{figs/tennis-results-annotated}
+  \caption{Tennis Results. \textbf{Top:} raw results. \textbf{Bottom:}
+  annotated results.}
+  \label{fig:tennis-results}
+\end{figure}
+
+The landing gear was walked in a loop. Initially, the 
+
+While walking, \begin{itemize}
+\item Keep in view of multiple trees
+\item Discontinuous/not always available; jumps
+\end{itemize}
+
+In the results:
+\begin{itemize}
+\item The \emph{red line} represents the path travelled. The line is a
+  collection of arrows, where the base of each arrow represents the
+  position at that instant, and the arrow is facing in the direction
+  the landing gear was facing.
+\item The \emph{green dots} represent trees \emph{currently being
+    detected} by the tree detection algorithm. In this case, two trees
+  in view of the start/end position are detected.
+\item The \emph{blue dots} represent the position of every tree known
+  to the system, the `map'.
+\end{itemize}
+
+The results have been annotated to highlight several
+features. Firstly, the arrow shows the initial direction of movement
+along the loop. The labelled regions are as follows:
+\begin{enumerate}[A:]
+\item This region shows the landing gear being rotated around a
+  point. This was done to ensure that the scanner remained in view of
+  multiple trees for as much of the route as possible.
+\item This region shows the landing gear being walked sideways: unlike
+  early in the path, the arrows are perpendicular to the direction of
+  travel. Again this was done to ensure that the laser scanner had a
+  good view of trees.
+\item This shows a simple `jump' in position, as the system goes from
+  being able to see one tree, and therefore not being able to do a
+  position correction, to seeing two trees, and being able to do a
+  position correction. The averaging algorithm reduces the level of
+  discontinuity in the position, but the discontinuity is still
+  observable.
+\item This shows a more complicated `jump', as the system became
+  momentarily confused about its position, and then recovered.
+\end{enumerate}
+
+Because the path was a loop, we can consider how accurately the path
+closes. Over a distance of around 40m each way, the final position was
+virtually indistinguishable from the original position\todo{, with error of
+around 10cm. double check}
+
+As such, we can conclude that the algorithm was highly successful for
+this set of trees.
+
+\subsection{Roadside}
+\label{sec:roadside}
+
+The ``roadside'' location is another clump of trees on the ANU
+campus. The trees are pictured in Figure~\ref{fig:roadside-trees}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/roadside-1}
+  \caption{Roadside trees}
+  \label{fig:roadside-trees}
+\end{figure}
+
+Again the hexacopter landing assembly was walked in a loop, with the
+results plotted in Figure~\ref{fig:roadside-results}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.45\textwidth]{figs/roadside-results}
+  ~
+  \includegraphics[width=0.45\textwidth]{figs/roadside-results-annotated}
+  \caption{Roadside results. \textbf{Left:} unannotated
+    results. \textbf{Right:} annotated results}
+  \label{fig:roadside-results}
+\end{figure}
+
+The symbols are the same as in the previous location.
+
+Points to note include:
+\begin{enumerate}[A:]
+\item The landing gear was again walked perpendicular to the direction
+  it was facing at the end of the loop in order to get a clear
+  reading.
+\item There were a number of significant jumps. This jump has been
+  highlighted because it occurs after a reasonably large chunk of
+  having no trees detected at all (note the large `gap' in trees
+  directly above it on the map), so it provides a good example of
+  the amount of small-scale drift experienced over moderate distances
+  when using PSM alone.
+\item Unlike the previous example, this example does not end with two
+  trees visible, but only one. As shown here, the detected tree starts
+  to drift off from the known tree, because corrections can only be
+  correctly estimated with two trees. This demonstrates that PSM
+  drifts away from the ground truth even in the absence of motion.
+\end{enumerate}
+
+The return to origin behaviour is excellent when in view of two trees,
+but does, as this example shows, tend to drift away when only one tree
+is in view. However, once that is accounted for, the accuracy is very
+good --- this time over a distance of about 60 meters each way.
+
+\subsection{Negative results}
+\label{sec:negative-results}
+
+Along with the two successful results above, there were a number of
+unsuccessful trials. While all the trials were different, a number of
+observations can be made, which further characterise the system.
+
+There are two major reasons for unsuccessful trials: sensor and
+recording errors, and algorithm errors. Recording errors will be
+detailed here, and algorithm errors discussed in \todo{ref:discussion
+  of negative results}
+
+There were two major sources of recording error. Firstly, the chunking
+error discussed in Section~\ref{psm-indoor}. Secondly, there were some
+issues with the recorded data missing the start and/or end of the
+route. This was mitigated by using a smaller chunk size, and
+ultimately eliminated by waiting 10--15 seconds from when the system
+started.
+
+\subsection{Conclusion --- walking only}
+\label{sec:concl-walk-only}
+
+The results from walking the landing gear around the two locations are
+highly positive.
+
+In short, they demonstrate that:
+\begin{itemize}
+\item  the hardware works and is capable of
+handling the low-frequency vibrations and general `wobble' caused by
+being walked around.
+\item the software works, both in terms of being able to record and
+  replay data, and also in the sense of being able to successfully
+  localise the platform as it is being walked around.
+\item the software works in both locations, so it is not overly
+  specialised for a single location or set of assumptions.
+\end{itemize}
+
+However, just walking around leaves a few questions: can the hardware
+handle flying, especially in terms of high frequency vibrations; and
+can the software handle the extra `noise' in the data caused by flying?
+
+\section{Flying}
+\label{sec:flying}
+
+The landing gear was attached to one of ANU's hexacopters. The
+hexacopter power was kept separate from the landing gear power, in
+order to prevent any drops in voltage from sudden acceleration from
+causing issues with the computer.
+
+The hexacopter was able to take off, but required around 70\%
+throttle, suggesting the overall weight should be reduced.
+
+Two flight tests were undertaken, which are explored below.
+
+\subsection{RSISE}
+\label{sec:rsise}
+
+The first flight test was conducted outside the Research School of
+Information Sciences and Engineering at ANU. The clump of trees used
+is shown in Figure~\ref{fig:rsise-trees}. The hexacopter in flight is
+shown in Figure~\ref{fig:rsise-flying}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/rsise-trees-1}\\
+  ~\\
+  \includegraphics[width=0.9\textwidth]{figs/rsise-trees-2}
+  \caption{RSISE Trees\\\textbf{Top:} View showing the front/side
+    showing the big tree, 2 front trees
+    and the 2 back trees.\\\textbf{Bottom:} View from the side, looking
+  in the opposite direction.}
+  \label{fig:rsise-trees}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/rsise-flying}
+  \caption{The hexacopter flying near the RSISE trees}
+  \label{fig:rsise-flying}
+\end{figure}
+
+\subsection{Tennis Court}
+\label{sec:tennis-court-1}
+
 
 
 \chapter{Discussion}
 \label{cha:discussion}
+
+Discussion of negative results while walking:
+ - The system is very sensitive to the PSM. Sudden jumps, greater than
+ the thresholds, will just cause everything to go to hell. On the
+ other hand we don't want to change that threshold too much because it
+ will cause a jump-back e.g. in the roadtrees B.
+ - PSM is pretty bad at dealing with circling a single tree. This
+ makes sense: a circle from any angle looks the same, so it's not
+ surprising.
+ - Likewise PSM just epically fails if things are sparse; hence RSISE
+ worse than all.
 
 \chapter{Conclusion}
 \label{cha:conclusion}
