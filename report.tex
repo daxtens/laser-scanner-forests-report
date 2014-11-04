@@ -514,13 +514,19 @@ The following changes were also required for acceptable outdoor
 performance:
 
 \begin{description}
+\item[Points required for a match] By default, the polar scan matcher
+  node requires 100 points be matched from between two scans for the
+  match to be considered successful. This worked well inside but
+  poorly outside.Dropping the threshold to 10
+  points improved matching noticeably, but not to the point of being
+  acceptable.
 \item[Negative Distances] Error reports from the polar scan matcher node
   showed that occasionally negative distances were found. Tracing
   these back, it was discovered that the scanner node itself was
   outputting negative distances. These were discarded in an early
   stage of processing, leading to slightly improved performance.
-\item[Median Filter] A close examination of the code revealed that one
-  of the pre-processing steps was a median filter.
+\item[Median Filter] A close, time-consuming examination of the code
+  revealed that one of the pre-processing steps was a median filter.
 
   The median filter replaces each point with the median of the points
   around it. Formally, it works as follows:
@@ -536,7 +542,7 @@ performance:
       \tcp{Replace the point with the central (3rd) point of $r'$}
       $s'[i] \leftarrow r[2]$ \;
     }
-    \caption{Psuedo-code for the median filter algorithm}
+    \caption{Pseudo-code for the median filter algorithm}
   \end{algorithm}
 
   While this algorithm works well indoors, where there are long
@@ -558,7 +564,7 @@ takes laser scans and detects trees, and one which uses the detected
 trees to correct the polar scan matching-derived position to a true
 position.
 
-\subsubsection{\texttt{tree\_detector}}
+\subsubsection{Tree Detector: \texttt{tree\_detector}}
 \label{sec:tree_detector}
 
 The tree detector node simply detects trees from a laser scan.
@@ -656,7 +662,7 @@ the speed and robustness of the algorithm.
 Finally, it would be highly desirable for many of the hardcoded
 parameters to be made configurable in the standard ROS way.
 
-\subsubsection{\texttt{tree\_fix}}
+\subsubsection{Tree Localization: \texttt{tree\_fix}}
 \label{sec:tree_fix}
 
 The \texttt{tree\_fix} node uses the trees published by
@@ -794,11 +800,11 @@ The polar scan matcher provides generally adequate performance inside
 a room, but tends to be subject to drift and jumps. 
 
 This is illustrated in Figure~\ref{fig:psm-indoors}, which was taken
-in the RSISE building at the Australian National University. The laser
-scanner started in the room in the top right corner of the scan, then
-exited the room, walked straight to the corner, then turned. The
-angles should be right angles, rather than the non-right angles
-observed.
+in the Research School of Information Sciences and Engineering (RSISE)
+building at the Australian National University. The laser scanner
+started in the room in the top right corner of the scan, then exited
+the room, walked straight to the corner, then turned. The angles
+should be right angles, rather than the non-right angles observed.
 
 It's worth noting that the laser scans tend to go in `blocks':
 matching will be very good for a short period (for example in a room)
@@ -866,10 +872,11 @@ Figure~\ref{fig:blur-detailed}.
 
 The cumulative drift and error is
 significant. Figure~\ref{fig:psm-outdoor} shows the result of walking
-the scanner assembly around a clump of trees at ANU \todo{ref to the
-  particular clump}. The path taken was a loop - the net translation
-should be zero. However, a large translation is observed; trees do not
-stay in the same place and there is lots of noise.
+the scanner assembly around a clump of trees at ANU. (See
+Section~\ref{sec:tennis-court} for full details of the location.) The
+path taken was a loop, so the net translation should be zero. However, a
+large translation is observed; trees do not stay in the same place and
+there is lots of noise.
 
 \begin{figure}[h!]
   \centering
@@ -910,10 +917,9 @@ Figure~\ref{fig:tennis-trees}.
 \end{figure}
 
 The hexacopter landing gear assembly was walked in a loop through the
-clump of trees.
-
-The results: the path taken and the map of trees detected is shown in
-Figure~\ref{fig:tennis-results}. \todo{Video and data bag location}
+clump of trees. The results---the path taken and the map of trees
+detected---is shown in Figure~\ref{fig:tennis-results}. \todo{Video
+  and data bag location}
 
 \begin{figure}
   \centering
@@ -924,13 +930,6 @@ Figure~\ref{fig:tennis-results}. \todo{Video and data bag location}
   annotated results.}
   \label{fig:tennis-results}
 \end{figure}
-
-The landing gear was walked in a loop. Initially, the 
-
-While walking, \begin{itemize}
-\item Keep in view of multiple trees
-\item Discontinuous/not always available; jumps
-\end{itemize}
 
 In the results:
 \begin{itemize}
@@ -1010,9 +1009,9 @@ Points to note include:
 \item There were a number of significant jumps. This jump has been
   highlighted because it occurs after a reasonably large chunk of
   having no trees detected at all (note the large `gap' in trees
-  directly above it on the map), so it provides a good example of
-  the amount of small-scale drift experienced over moderate distances
-  when using PSM alone.
+  directly above it on the map), so it provides a good example of the
+  amount of drift experienced over moderate distances when using PSM
+  alone.
 \item Unlike the previous example, this example does not end with two
   trees visible, but only one. As shown here, the detected tree starts
   to drift off from the known tree, because corrections can only be
@@ -1038,7 +1037,7 @@ detailed here, and algorithm errors discussed in \todo{ref:discussion
   of negative results}
 
 There were two major sources of recording error. Firstly, the chunking
-error discussed in Section~\ref{psm-indoor}. Secondly, there were some
+error discussed in Section~\ref{sec:psm-indoor}. Secondly, there were some
 issues with the recorded data missing the start and/or end of the
 route. This was mitigated by using a smaller chunk size, and
 ultimately eliminated by waiting 10--15 seconds from when the system
@@ -1070,9 +1069,9 @@ can the software handle the extra `noise' in the data caused by flying?
 \label{sec:flying}
 
 The landing gear was attached to one of ANU's hexacopters. The
-hexacopter power was kept separate from the landing gear power, in
-order to prevent any drops in voltage from sudden acceleration from
-causing issues with the computer.
+hexacopter power was kept separate from the payload power, in order to
+prevent any drops in voltage from sudden acceleration from causing
+issues with the computer.
 
 The hexacopter was able to take off, but required around 70\%
 throttle, suggesting the overall weight should be reduced.
@@ -1102,28 +1101,320 @@ shown in Figure~\ref{fig:rsise-flying}.
 \begin{figure}
   \centering
   \includegraphics[width=0.9\textwidth]{figs/rsise-flying}
-  \caption{The hexacopter flying near the RSISE trees}
+  \caption{The hexacopter flying near the RSISE trees. The photo was
+    taken facing away from the trees, so the trees identified in the
+    results are not in frame.}
   \label{fig:rsise-flying}
 \end{figure}
+
+The flight path did not attempt to weave between the trees, rather it
+simply flew from side to side, facing the clump of trees, at a
+distance of a few meters.
+
+The flight was highly successful. Once the hexacopter had taken off,
+it was able to correctly locate the trees and use them for
+localization, even with changes in altitude. It also shows the
+altitude measurement is both smooth and responsive.
+
+Because the flight was not a loop, plotting the entire path is not
+particularly useful or informative. Instead,
+Figure~\ref{fig:rsise-results} shows a snapshot of the 3D path taken by
+the hexacopter, as it ascends.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/rsise-flying-results}
+  \caption{RSISE flight results, showing a snapshot of the
+    flight. \todo{replot with corrected height}}
+  \label{fig:rsise-results}
+\end{figure}
+
+The software kept accurate localization so long as the hexacopter was
+at a reasonable height: more than 1m or so above the ground.
 
 \subsection{Tennis Court}
 \label{sec:tennis-court-1}
 
-
+Waiting to extract the results
 
 \chapter{Discussion}
 \label{cha:discussion}
 
-Discussion of negative results while walking:
- - The system is very sensitive to the PSM. Sudden jumps, greater than
+\todo{some sort of introduction} In many cases, each subsection is
+discussed and suggestions of future work made in the description of
+that part in the chapter on construction. Therefore, this chapter
+considers the system and the results more holistically.
+
+\section{Analysis of results}
+\label{sec:analysis-results}
+
+Understanding the errors in the results is not
+straightforward. Broadly, error can be categorised into \emph{sensor
+  error}, and \emph{algorithmic error}. Sensor error from the laser
+scanner appears to be small, and vibrations from flying the hexacopter
+does not seem to increase it. Some error which could most accurately
+be described as sensor-related was due to timing issues in recording
+data, but that was easy to address (see \todo{discussion of it}).
+
+The algorithmic error comes from the polar scan matcher, the
+tree-based localization and the interaction between the two. We
+explore the issues in each.
+
+\subsection{Analysis of PSM-related error}
+\label{sec:psm-error}
+
+The negative results from walking around provided a lot of examples of
+causes of error.
+
+Firstly, the polar scan matcher does not deal well with circling a
+single tree. This makes sense: a circle from any angle looks the same,
+so it's not surprising that the algorithm struggles. This is
+especially the case when there is only 1 tree in view.
+
+More broadly, the polar scan matcher works much better the more points
+it can match. Sparse clumps of trees surrounded by clear space tend to
+work much worse than denser clumps of trees, which is why many of the
+negative results were for the RSISE trees and the results for the
+tennis courts and roadside were much more positive.
+
+Lastly, foliage did not seem to interact well with the PSM.
+
+Furthermore, errors in PSM tended to interact badly with the
+tree-based localisation: see Section~\ref{sec:interaction}.
+
+\subsection{Analysis of tree-based localization error}
+\label{sec:tree-error}
+
+Tree based localisation is itself prone to two different types of
+error: error in detecting trees, and error in using those trees for
+localization.
+
+\subsubsection{Tree Detection}
+\label{sec:tree-detection}
+
+The primitive nature of the tree detector affects its accuracy. 
+
+Firstly, there's a tradeoff in the number in tree points required for
+the detection of trees. If too many points are required, trees have to be very
+close before they're detected. If too few points are required, a
+single tree can be detected as multiple trees, and there are increased spurious detections.
+
+More broadly, the detection algorithm detecting features rather than
+circles creates problems.
+
+\begin{description}
+\item[Inability to deal with different classes of feature] Using the
+  minimum enclosing circle (MEC) with features means that any shape is
+  treated as a circle. This makes the algorithm unsuitable to be used
+  in mixed environments, and also makes it perform poorly in the
+  presence of people in the field of view.
+\item[Cannot use radii] The MEC detection is quite unstable: rather
+  than detecting a stable circle with a near-stationary centre, the
+  centre and especially the radius fluctuate wildly. This means the
+  radius cannot be published and used for tree matching.
+\item[Cannot detect distant trees] An inevitable feature of laser
+  scanners is that the detected points spread out. The minimum
+  detectable width of an object at 10m is 130mm with the UTM-30LX
+  scanner used (see Section~\ref{sec:mk-ii}). A decent sized tree
+  should still get 3 or 4 points, which is enough to fit a
+  circle. However, because the MEC detection requires many, many
+  points, and requires them to be close together when mapped to
+  pixels, it cannot detect distant trees.
+\end{description}
+
+Ultimately, these issue can only be solved by moving to an algorithm
+that actually detects circles.
+
+Further issues:
+\begin{itemize}
+\item The tree detector is also easily confused by foliage.
+\item The system models trees as perfect vertical columns of infinite
+  height. Obviously this is not correct. A more appropriate model
+  should allow trees to change height, to fork, to have foliage, and
+  to have finite height.
+\end{itemize}
+
+\subsubsection{Tree Localization}
+\label{sec:tree-localization}
+
+The tree localization is also largely hamstrung by its
+nearest-neighbour algorithm. In short, there is no way to accurately
+locate a small set of points within a larger set of points without
+first having a position estimate. This means that any estimate that
+pushes the trees either beyond the threshold for nearest-neighbour, or
+pushes them closer to a different recorded tree will cause the points
+to fall out of sync, and once they are out of sync they cannot go back
+into sync of their own accord.
+
+This is not an easy problem to solve, especially in a time-efficient
+way. 
+
+For example, finding the best match for 2 points in a map with 20
+points requires testing $20 \times 19$ different pairs. Trying to
+match 3 points requires at worst $20 \times 19 \times 18$. 
+
+The process
+is further complicated because the algorithm cannot be sure that all
+the points that have just been detected map to points on the map: some
+--- or all! --- of them could be new detections.
+
+Forests tend to look similar at small scales. Just like a corner is
+not a particuarly unique feature of a building, a pair of trees is
+often not very unique. They tend to grow to be the same distance
+apart!
+
+This could be assisted with radii, but perfect column assumption.
+
+However, all of this is ignoring part of the information we know. Our
+system is binary - there is a tree or there is not. This does not
+encapsulate all the information we have: we also \emph{know that some areas
+are empty}. We can use this: if our alignment tells us that we should
+place a tree in an area that we know is empty, we know we have an
+incorrect alignment. In other words, we can make use of occupancy grid
+mapping. (albeit at the cost of greater resources). This is the
+approach taken by \texttt{slam\_gmapping} \todo{link, explanation}
+
+Extend to 3D with use of voxels; at risk of reducing the largeish
+efficiency gains.
+ 
+
+\subsection{Interaction}
+\label{sec:interaction}
+
+ - The tree-localisation system is very sensitive to the PSM. Sudden jumps, greater than
  the thresholds, will just cause everything to go to hell. On the
  other hand we don't want to change that threshold too much because it
  will cause a jump-back e.g. in the roadtrees B.
- - PSM is pretty bad at dealing with circling a single tree. This
- makes sense: a circle from any angle looks the same, so it's not
- surprising.
- - Likewise PSM just epically fails if things are sparse; hence RSISE
- worse than all.
+
+\subsection{Flight}
+\label{sec:flight}
+
+
+
+\subsection{Software: future work}
+\label{sec:softw-future-work}
+
+Future work
+ - Replace the filter
+
+
+\section{Discussion of hardware}
+\label{sec:discussion-hardware}
+
+% This is sort of inherent.
+%\subsection{Hardware: future work}
+%\label{sec:hardw-future-work}
+
+\subsection{Weight}
+\label{sec:weight}
+
+
+A major concern regarding the hardware is the weight. Requiring 70\%
+throttle severely limits the flight time of the hexacopter, and also
+makes it harder to fly. How can weight be reduced?
+
+\subsubsection{Battery}
+\label{sec:battery}
+
+The current setup uses separate batteries for the hexacopter (motors,
+radios, etc) and for the payload. This was to reduce the likelihood
+that a sudden spike in current draw (e.g. from climbing suddenly) from
+causing a voltage drop that would cause the onboard computer to shut
+down, or lead to corrupted data.
+
+However, the payload battery lasts for upwards of an hour, whereas the
+flight battery lasts for mere minutes. This is evidently not
+optimal. How could this be addressed?
+
+Can we use a single battery pack, keeping to computer and scanner
+voltage stable by use of large capacitors? Probably not: once the
+voltage drops exceed the millisecond time scale, the amount of
+capacitance required becomes incredibly onerous.
+
+Instead, it ought to be possible to better configure the batteries so
+that the \emph{endurance} of the packs is roughly matched --- that is,
+that the flight time roughly equals the length of time for which the
+payload runs. An outline of how that might be achieved follows.
+
+Firstly, the gimbal set could be connected to the main battery. Not
+only is the gimbal the single biggest consumer of power, the firmware
+can be configured to expect and compensate for fluctuating power.
+
+This leaves just the scanner and the PC connected to the secondary
+battery. On average these together use around 1.5A.  Say they are to
+run for 30 minutes; that gives $1.5 \times 12 \times 0.5 = 9$Wh, or
+$1.5 \times 0.5 \times 1000 = 750$mAh (assuming a 12V source). This
+could be supplied with a lighter battery.
+
+Unfortunately, LiPo batteries don't exactly hit 12V: a 3 cell battery
+will supply 11.1V, and a 4 cell battery 14.8V. To minimise weight, it
+would be preferable to use an 11.1V battery. If a boost converter is
+used with 90\% efficiency:
+\begin{equation}
+  \label{eq:2}
+  I_{\text{batt}} = 1.5 \times \frac{12}{11.1} \times \frac{1}{0.9} =
+  1.80 \text{ A}
+\end{equation}
+
+At 1.80A, a battery would need 900mAh of capacity to last half an
+hour, or if we want to ensure that we never drop below 25\% capacity:
+\begin{equation}
+  \label{eq:3}
+  0.75c = 1.80 \times 0.5 \Rightarrow c = 1200 \text{ mAh}
+\end{equation}
+
+A 1200mAh 3 cell LiPo would weigh significantly less than the current
+\todo{check?} mAh, 4 cell battery.
+
+\subsubsection{Other ways of reducing weight}
+\label{sec:other-ways-reducing}
+
+As the landing gear was assembled largely as a prototype, there are
+also other potential weight savings that could be realised by a
+redesign and rebuild.
+
+
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{figs/potential-hw-savings}
+        \caption{Potential savings in hardware weight.\\\textbf{Yellow}: Gimbal top plate\\\textbf{Red}: Gimbal clamps attaching to top plate\\\textbf{Green}: Long power and USB cable from scanner.}
+        \label{fig:potential-hw-savings}
+      \end{figure}
+
+An additional design goal that should be considered when reducing
+weight is to balance the hexacopter as a whole. \todo{explain}
+
+
+\subsection{Landing damage}
+\label{sec:landing-damage}
+
+
+A second concern is damage caused to the hardware by a hard landing on
+the second flight trial.
+
+ - Results of the crash.
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.9\textwidth]{figs/damage}
+   \caption{Identification of areas of interest from crash.}
+   \label{fig:damage}
+ \end{figure}
+
+    - put a frame around the top too.
+    - see also the issues identified with the base plate anyway.
+
+
+
+\section{Future work}
+\label{sec:future-work}
+
+ - Link into control
+
+\section{Other comments}
+\label{sec:other-comments}
+
+
 
 \chapter{Conclusion}
 \label{cha:conclusion}
