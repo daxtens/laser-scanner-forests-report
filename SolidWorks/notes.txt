@@ -1,0 +1,15 @@
+Board mating adaptor
+
+http://brushlessgimbal.de/695-2/hardware/ - gimbal is 50x50, holes are 45x45 centre-centre
+suit M3
+
+Holes in lower one areacross smaller area - can use gimbal board as size reference
+
+Gimbal is 30mm definite by what looks like 44mm; m2 hole
+
+---
+
+https://www.hokuyo-aut.jp/02sensor/07scanner/utm_30lx.html
+
+---
+http://www.via.com.tw/en/downloads/whitepapers/initiatives/spearhead/pico-itx_form_factor.pdf
