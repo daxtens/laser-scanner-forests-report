@@ -5,7 +5,7 @@
 %\usepackage[palatino]{anuthesis}
 \usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage[left=3cm,top=2.5cm,bottom=2.5cm,right=2cm]{geometry}
+\usepackage[left=3cm,top=2cm,bottom=2cm,right=2cm]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{gensymb}
@@ -87,13 +87,65 @@ Abstract!
 \chapter{Aims and Contribution}
 \label{cha:aims}
 
-Reproducible research statement!
+%It is often difficult to determine exactly what in the report is the student's 
+%own work, what is new and what the actual aims and outcomes were. Each 
+%report is required to have a section that specifically sets out what the goals 
+%and outcomes of the project were. For example, did you undertake:
+%- a research project that contributed new knowledge;
+%- a simulation project that required you to replicate relatively 
+%complicated, but previously published (by someone else) results;
+%- a design project which took into account skills learned during your 
+%degree – or new skills you had to acquire;
+%- a build project based on someone else’s design (e.g., your 
+%supervisor or an otherwise published design), but requiring the 
+%application, and possibly learning, of some analytical skills.
+%This section should then detail the outcome (e.g. what was the research 
+%contribution or what were the new skills learned to build the widget) 
+%explicitly stating what your contribution was. 
+
+This project set out to achieve the ambitious goal of hovering
+
+it achieved
+
+my contribution was
+
+- learned solidworks
+
+
+\section{Reproducible Research}
+\label{sec:repr-rese}
+
+Reproducibility is a core requirement of scientific research. Results
+can only be trusted if they can be replicated by others. In addition
+to increasing transparency and confidence in the scientific process,
+reproducibility accelerates scientific progress by making it easier to
+verify, continue and extend prior work.
+
+Traditionally, reproducibility was accomplished by publishing papers
+that clearly and concisely explained the work done. However, with the
+enormous complexity of many projects, it is impossible to include the
+complete details within a report of reasonable length. Fortunately,
+the internet makes it easy to provide not just all the details, but
+all the code and all the data. Full reproducibility --- at least of
+software elements --- should be a key goal.\footnote{I also
+  confess that part of my strong feelings on this topic stem from a
+  previous experience attempting to replicate a paper which omitted
+  key details --- and turned out to be wrong. \todo{citation?}}
+
+As such, this report, the code written for it, and the data sets
+analysed, have been made freely available online. They can be accessed
+at \url{https://github.com/daxtens/laser-scanner-forests-report}.
+While their application is more limited, all the relevant CAD files
+have also been uploaded to the same place.
+
+\todo{verify that all code and data are there}
+
+\todo{move stuff over from various-ros-packages}
+
+
 
 \chapter{Introduction}
 \label{cha:intro}
-
-\chapter{Literature Survey}
-\label{cha:litsurvey}
 
 \chapter{Background}
 \label{cha:background}
@@ -101,19 +153,98 @@ Reproducible research statement!
 Note \todo{somewhere, not necessarily here} that PSM is subject to
 drift and needs to be compensated for.
 
-\chapter{Construction}
-\label{cha:construction}
+\section{Literature Survey}
+\label{sec:litsurvey}
 
-\section{Hardware}
+Previous approaches in the literature
+Previous approaches
+- DGPS
+- IMU + Camera (optical flow)
+
+
+There is a significant body of work on GPS-denied indoor areas.
+
+Of particular relevance is \cite{achtelik2009stereo}. The authors
+constructed 2 quadcopters - one that used the a laser scanner, and one
+that used a custom stereoscopic camera. 
+
+The paper compares the performance of both the laser scanner
+approach and the camera approach by using a VICON system to provide a
+`ground truth'. This approach provides for informative data, but is
+unsuitable for use outside.
+
+The paper details the considerable amount of effort required to have
+the stereoscopic image processing happen in real-time. The quadrotor
+itself was equipped with a 1.6GHz onboard computer, which used WiFi to
+offload image processing to a 2.4GHz Core2 Duo laptop. The laser
+scanner data, on the other hand, was processed onboard on a Gumstix
+board --- highlighting the computational disparity between the two
+approaches.
+
+%\todo{talk about their scan matching algo?}
+
+The team successfully ran autonomous flight trials and concluded that
+both approaches were feasible, and had their own strengths and
+weaknesses.
+
+%\begin{itemize}
+%\item Considers both stereo vision and laser
+%\item uses same laser scanner, also with downward facing points
+%\item Gumstix controller.
+%\item Indoor only!
+%\item Good set of challenges - consider them in background!
+%\item SLAM is only 0.3Hz; ours is 4-5Hz
+%\item Their laser scan matching is based on Olsen - completely
+ % different
+%\item lots of special work needed to do processing of visual fast enough.
+%\item Compares results to VICON for ground truth --- link to Jon's
+ % paper
+%\item Doesn't use ROS.
+%\end{itemize}
+
+
+
+The problem of navigation in forests is considered in
+\cite{langelaan2005towards}. Here the authors developed a SLAM
+algorithm based on an IMU and a monocular camera.
+- tested on an RC car, not a quad/hex
+- monocular camera: can only provide bearings to obstacles, not
+distances
+- uses a unscented kalman filter for sensor fusion
+- processing not done onboard but remotely and fed back.
+- defines obstacles/landmarks as red blobs; not so generic. Indeed,
+tested in an entirely artificial environment.
+- includes some a priori knowledge of the environment to get a decent
+origin. 
+
+% conclusion
+This project attempts to replicate the results of
+\cite{achtelik2009stereo} (with respect to laser scanners), but
+outdoors. 
+
+Key challenges, where
+ - the points are less dense.
+ - focus on things that can be done onboard, not requiring computation
+ to be done on a base station.
+
+
+\cite{robust}:
+\begin{itemize}
+\item prev work at anu
+\end{itemize}
+
+
+
+\chapter{Construction: Hardware}
 \label{sec:hardware}
 
-\subsection{Laser Scanner and Gimbal}
+\section{Laser Scanner and Gimbal}
 \label{sec:laser-scanner-gimbal}
 
 The hardware was built in two phases - Mk I around a Hokuyo
 UBG-04LX-F01 scanner \cite{scanner1}, and Mk II around a Hokuyo UTM-30LX scanner \cite{scanner2}. 
 
-\subsubsection{Mk I}
+\subsection{Mk I}
 \label{sec:mk-i}
 
 Initially, the assembly was built around a UBG-04LX-F01 laser
@@ -161,7 +292,7 @@ While this was sufficient to allow testing of the software and mount,
 it was excessively heavy and degraded gimbal performance. Designing a
 replacement platform was identified as a priority for later stages of the project.
 
-\subsubsection{Mk I Mod II}
+\subsection{Mk I Mod II}
 \label{sec:mk-ib}
 
 During development, power was accidentally connected backwards across
@@ -173,9 +304,23 @@ entire gimbal control system had to be replaced.
 The gimbal control board was replaced with a Martinez V3. (See \todo{original site} and e.g. \cite{martinez}.)
 
 The mounting holes in the new board did not fit the existing
-mounts for the old board, requiring an adaptor board. \todo{Include
-  diagram of adaptor board.}
+mounts for the old board, requiring an adaptor board, shown below in
+Figure~\ref{fig:gmb}. The large holes (M3) mount the new board on
+nylon spacers, with the small holes (M2) attaching to gimbal.
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figs/gmb}
+  \caption{SolidWorks render of the gimbal mating board. The
+    SolidWorks file and DXF export are available on the project repository.}
+  \label{fig:gmb}
+\end{figure}
+
+This was initially laser cut out of 3mm MDF,
+however this proved too thick: the original mounting screws were too
+short to go through the board and in to the mounts below. A 2mm thick board
+proved much more successful.
+ 
 Replacing the board also necessitated removing the IMU supplied with
 the gimbal originally and installing a new one. The new IMU
 fortunately fit in the space taken up by the old gimbal, and was
@@ -187,11 +332,12 @@ available online \cite{gimbalsoftware}. The software was installed and
 tuned. It performed poorly with the heavy Mk I arrangement, but fixing
 this was postponed due to the upcoming Mk II.
 
-\subsubsection{Mk II}
+\subsection{Mk II}
 \label{sec:mk-ii}
 
-As discussed \todo{somewhere}, it was decided to replace the laser
-scanner to improve range and resolution and thus hopefully improver performance outdoors.
+As explained in Section~\ref{sec:psm-outdoor}, it was decided to
+replace the laser scanner to improve range and thus hopefully improver
+performance outdoors.
 
 The replacement laser scanner was a Hokuyo UTM-30LX scanner
 \cite{scanner2}. 
@@ -204,13 +350,22 @@ The UTM-30LX:
 \item Draws 12V, between 0.7A and 1A.
 \item Provides both serial and USB output.
 \item Produces 1 scan every 25ms (40 scans per second).
-\item \todo{INTEGRATE THIS!!!} Minimum detectable width at 10m: 130mm.
+\item Minimum detectable width at 10m: 130mm.
 \end{itemize}
 
 However, this scanner is too tall to fit neatly into the gimbal
-mount. As such, a new gimbal base plate was designed in SolidWorks.
+mount. As such, the top plate and base plate were removed and a new
+gimbal base plate was designed in SolidWorks. The plate is pictured in
+Figure~\ref{fig:baseplate}. The board is designed with 3 sets of
+holes, because it was unclear where the laser scanner would need to be
+placed to balance the gimbal.
 
-\todo{Insert illustration of the gimbal board.}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/baseplate}
+  \caption{The gimbal base plate as rendered in SolidWorks. The SolidWorks part and DXF export are available from the project repository.}
+  \label{fig:baseplate}
+\end{figure}
 
 Only one base plate was fabricated, being laser cut out of 3mm
 MDF. After fabrication, the following mistakes were discovered, which
@@ -231,27 +386,15 @@ The following optimisations could also be made:
   scanner that were put there for the height sensor. These are
   unnecessary, and should be replaced with a more comprehensive
   weight-reduction strategy.
-\item The board is designed with 3 sets of holes, because it was
-  unclear where the laser scanner would need to be placed to balance
-  the gimbal. As it turns out, it is more balanced than expected, and
-  so only the middle set of holes are required. This will allow the
+\item Only the middle set of holes are required. This will allow the
   board to be simplified and reduced in size.
 \end{itemize}
-
-The base plate model is available online for future work at
-\todo{project url}.
 
 Having fabricated the base plate, the gimbal was
 re-adjusted. Performance was \emph{considerably} better than with the
 Mk I.
 
-The gimbal controller was initially mounted on nylon spacers above the adaptor board
-shown \todo{below}. This was initially laser cut out of 3mm MDF,
-however this proved too thick: the original mounting screws were too
-short to go through the board and in to the mounts below. A 2mm thick board
-proved much more successful.
-
-\subsection{Onboard computer}
+\section{Onboard computer}
 \label{sec:onboard-computer}
 
 A Pico-ITX form-factor single-board computer was installed to process
@@ -262,14 +405,14 @@ The board is a LP-170C \cite{pc}:
 \item 1.8GHz Atom processor
 \item 4GB memory
 \item 4xUSB2 port
-\item Compact Flash card for main storage (32GB\todo{check} installed)
+\item Compact Flash card for main storage (24GB installed)
 \item Draws 12V.
 \end{itemize}
 
 The operating system and software set up on the computer is detailed
-in the Software section below. \todo{proper reference}
+in the Software section below.
 
-\subsection{Power supply}
+\section{Power supply}
 \label{sec:power-supply-cons}
 
 The three powered components (gimbal, scanner and PC) all require 12V
@@ -303,7 +446,7 @@ controller board instead of the original two pin connector. (In
 addition, the connector can only be inserted one way, eliminating the
 chance of destroying another board.)
 
-\subsection{Height measurement setup}
+\section{Height measurement setup}
 \label{sec:height-meas-setup}
 
 It is desirable for the laser scanner to also be able to provide
@@ -315,19 +458,30 @@ It was desirable for the mirror assembly to be adjustable after
 fabrication. As such it was designed so the mirror was held in by two
 circular rings, which could be rotated through a mount.
 
-The completed mirror assembly is shown below in
-Figure~\ref{fig:mirror}, and the designs in \todo{Figure}.
+This was modelled in SolidWorks as shown in
+Figure~\ref{fig:mirror-solidworks}. The completed mirror assembly is shown below in
+Figure~\ref{fig:mirror}.
 
-\begin{figure}[h!]
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/mirrorassembly}\\
+  ~\\
+  \includegraphics[width=0.4\textwidth]{figs/mirrorholder}
+  \includegraphics[width=0.4\textwidth]{figs/mirrorholdermount}
+  \caption{The system model (top), the individual rings (bottom left) and the piece holding the rings (bottom right). The SolidWorks parts and DXF exports are available from the project repository.}
+  \label{fig:mirror-solidworks}
+\end{figure}
+
+\begin{figure}
   \centering
   \includegraphics[width=0.45\textwidth]{figs/mirror}
-  \caption{The completed mirror assembly (left), \todo{and as installed (right)}.}
+  \caption{The completed mirror assembly.}
   \label{fig:mirror}
 \end{figure}
 
 The mirror is a front-faced mirror---silver deposited on silicon---in
 order to prevent error from refraction caused by having glass in front
-of the reflective surface..
+of the reflective surface.
 
 When the mirror was installed, it was discovered that it was too high,
 and the entire assembly had to be tilted down and held in place with
@@ -335,7 +489,7 @@ hot glue. This assembly mounts on the top of the support - future
 assemblies should mount on the bottom side of the top of the support,
 with screws going upwards into the support, rather than downwards.
 
-\subsection{Attaching to hexacopter landing gear}
+\section{Attaching to hexacopter landing gear}
 \label{sec:attach-hexac-land}
 
 The gimbal was mounted to an anti-vibration mount with cable
@@ -349,21 +503,43 @@ fit the landing gear and the onboard computer. The anti-vibration
 mount is attached with cable ties to bear the load and hot glue to
 prevent the parts moving with respect to each other.
 
-\todo{The board is reproduced below, along with a model of the
-  anti-vibration mount, showing how they mate.}
+The board is reproduced below in Figure~\ref{fig:pc-mount}.
 
-The board is mounted to the landing gear with cable ties and \todo{hot glue?}.
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=0.6\textwidth]{figs/pc-mount}
+  \caption{The PC mounting board, as rendered by SolidWorks.}
+  \label{fig:pc-mount}
+\end{figure}
+
+It's not immediately obvious how that mates with the anti-vibration
+mount, so Figure~\ref{fig:pc-avm-mount} shows the designed plate
+mating with a reconstruction of the critical parts of the
+anti-vibration plate.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figs/pc-avm}
+  \caption{The key (interior) parts of the anti-vibration mount (front), with the PC mount plate (back) showing the shared cutouts for cable ties.}
+  \label{fig:pc-avm-mount}
+\end{figure}
+The board is mounted to the landing gear with cable ties and hot glue.
+
+\section{Concluding remarks}
+\label{sec:concluding-remarks}
 
 Figure~\ref{fig:mk2} is a picture of the complete assembly.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=\textwidth]{figs/mk2}
-  \caption{The completed assembly. \todo{better image!!!}}
+  \caption{The completed assembly.}
   \label{fig:mk2}
 \end{figure}
 
-\section{Software}
+The total weight of the assembly is around 1.4kg, not including batteries.
+
+\chapter{Construction: Software}
 \label{sec:software}
 
 The software is built on ROS, the Robot Operating System
@@ -431,7 +607,7 @@ This is understood most easily through Figure~\ref{fig:rostf}.
 
 The nodes will now be explained.
 
-\subsection{\texttt{scan\_to\_height}}
+\section{\texttt{scan\_to\_height}}
 \label{sec:scan_to_height}
 
 As explained in Subsection~\ref{sec:height-meas-setup}, the last few
@@ -462,7 +638,7 @@ additive error due to the distance between the sensor and the mirror,
 and due to losses caused by the mirror surface. These \todo{will be}
 both corrected for.
 
-\subsection{Scan Filtering}
+\section{Scan Filtering}
 \label{sec:scan-filtering}
 
 Having the laser scanner mounted in the landing gear means that
@@ -477,7 +653,7 @@ improves performance.
 Various other filters were explored, including a shadow remover, and
 an interpolation filter. Neither improved performance.
 
-\subsection{Polar Scan Matcher}
+\section{Polar Scan Matcher}
 \label{sec:polar-scan-matcher}
 
 The polar scan matcher is based on \todo{citation needed - original
@@ -552,7 +728,7 @@ performance:
 \end{description}
 
 
-\subsection{Tree Detection \& Localization}
+\section{Tree Detection \& Localization}
 \label{sec:tree-detection-localization}
 
 \todo{Some form of introduction: reference previous post-processing
@@ -564,7 +740,7 @@ takes laser scans and detects trees, and one which uses the detected
 trees to correct the polar scan matching-derived position to a true
 position.
 
-\subsubsection{Tree Detector: \texttt{tree\_detector}}
+\subsection{Tree Detector: \texttt{tree\_detector}}
 \label{sec:tree_detector}
 
 The tree detector node simply detects trees from a laser scan.
@@ -612,9 +788,8 @@ The process proceeds as follows:
   \begin{itemize}
   \item The OpenCV built-in ``Hough Circles'' detection process. This
     failed to yield any results at all, even on artificial perfect
-    circles and with supplied sample code. This may be due to a bug
-    introduced in OpenCV, as in \todo{cite emails were someone else
-      had the bug}.
+    circles and with supplied sample code. This may have been due to
+    OpenCV version problems, or a misunderstanding of the parameters.
   \item Feature detection with a semi-circle also failed; which is
     apparently due to the same root cause as the Hough Circles
     failure.
@@ -653,16 +828,12 @@ the speed and robustness of the algorithm.
   11$ pixels). Alternative, faster filters should be evaluated.
 \item The entire Python code should be re-written in C++, which would
   probably result in a \emph{significant} speed up.
-\item The feasibility of processing the entire scan in its original
-  polar form should be considered. \todo{what happens when you
-    transform a semicircle into polar form? - it appears to become an
-    semi-ellipse...}
 \end{itemize}
 
 Finally, it would be highly desirable for many of the hardcoded
 parameters to be made configurable in the standard ROS way.
 
-\subsubsection{Tree Localization: \texttt{tree\_fix}}
+\subsection{Tree Localization: \texttt{tree\_fix}}
 \label{sec:tree_fix}
 
 The \texttt{tree\_fix} node uses the trees published by
@@ -852,9 +1023,10 @@ the system was tested outdoors.
 The polar scan matcher was then tested outdoors.
 
 Initially, the system was entirely unusable, not detecting motion in
-any usable way whatsoever. Firstly, a greater range laser scanner
-was tried, as explained in Section~\todo{ref}. However, ultimately
-various fixes to the software were required. These are explained in
+any usable way whatsoever. Firstly, a greater range laser scanner was
+tried. (This necessitated significant hardware work, resulting in the
+Mk II: see Section~\ref{sec:mk-ii}.) However, ultimately various fixes
+to the software were required. These are explained in
 Section~\ref{sec:polar-scan-matcher}.
 
 Once those fixes were deployed, the polar scan matcher provided
@@ -981,8 +1153,16 @@ campus. The trees are pictured in Figure~\ref{fig:roadside-trees}.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\textwidth]{figs/roadside-1}
-  \caption{Roadside trees}
+  \includegraphics[width=0.6\textwidth]{figs/roadside-1}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/roadside-2}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/roadside-3}\\
+  ~\\
+  \caption{Roadside trees.\\\textbf{Top:} View from near the start of
+    the loop.\\\textbf{Middle:} View from towards the end of the loop,
+  looking forwards.\\\textbf{Bottom:} View from towards the end of the
+  loop, looking backwards towards the start.}
   \label{fig:roadside-trees}
 \end{figure}
 
@@ -1135,7 +1315,36 @@ at a reasonable height: more than 1m or so above the ground.
 \subsection{Tennis Court}
 \label{sec:tennis-court-1}
 
-Waiting to extract the results
+The second flight test was conducted in the same location as in
+Section~\ref{sec:tennis-court}. 
+
+Determining the flight path was slightly more complex in this
+case. The data was noisy, particularly around takeoff and landing. In
+particular, the landing involved a turn conducted when the polar scan
+matcher was pointed across a car-park, and was too high to observe any
+points. Thus the turn cannot be computed, and the system gets horribly
+confused.
+
+As such, the flight path with the take-off and landing omitted is
+shown below in Figure~\ref{fig:flying-tennis-path}. Some stills from
+the 3D view are shown in Figure~\ref{fig:flying-tennis-3D}.
+
+
+
+It's difficult to analyse the flight in terms of return to origin, but
+it's worth noting that the path shown accurately tracks the path
+taken, and certainly with enough accuracy for navigation and obstacle
+avoidance.
+
+\subsection{Conclusion --- flying}
+\label{sec:conclusion-flying}
+
+The big question remaining after the successful walking tests was
+whether or not the system could handle the high frequency vibrations
+caused by being flown. 
+
+The results show that the system can accurately localise itself when
+flying. 
 
 \chapter{Discussion}
 \label{cha:discussion}
@@ -1253,17 +1462,20 @@ For example, finding the best match for 2 points in a map with 20
 points requires testing $20 \times 19$ different pairs. Trying to
 match 3 points requires at worst $20 \times 19 \times 18$. 
 
-The process
-is further complicated because the algorithm cannot be sure that all
-the points that have just been detected map to points on the map: some
---- or all! --- of them could be new detections.
+The process is further complicated because the algorithm cannot be
+sure that all the points that have just been detected map to points on
+the map: some --- or all! --- of them could be new detections.
 
-Forests tend to look similar at small scales. Just like a corner is
-not a particuarly unique feature of a building, a pair of trees is
-often not very unique. They tend to grow to be the same distance
-apart!
+In addition, forests tend to look similar at small scales. Perhaps
+it's simply a quirk of the two environments mapped, but the a lot of
+pairs of trees have similar distances. This makes generic matching
+with only small numbers of trees particularly difficult.
 
-This could be assisted with radii, but perfect column assumption.
+Integrating the radii of trees into the matching algorithm would
+reduce the similarity. However, at the moment there's the assumption
+that the trees are a perfect column, with a constant radius the whole
+way around. If the measurements were not made at very similar heights,
+this assumption would fall apart, again complicating matters.
 
 However, all of this is ignoring part of the information we know. Our
 system is binary - there is a tree or there is not. This does not
@@ -1274,9 +1486,13 @@ incorrect alignment. In other words, we can make use of occupancy grid
 mapping. (albeit at the cost of greater resources). This is the
 approach taken by \texttt{slam\_gmapping} \todo{link, explanation}
 
-Extend to 3D with use of voxels; at risk of reducing the largeish
-efficiency gains.
- 
+This approach could also be extended to three dimensions by taking up
+the idea of voxels: `volume pixels'. This would enable the system to
+work across a range of heights. However, it would massively increase
+both complexity and storage requirements, especially with a naive 3D
+grid approach. Indeed, the complexity would have almost reached the
+level of the stereoscopic camera approach.
+
 
 \subsection{Interaction}
 \label{sec:interaction}
@@ -1289,25 +1505,184 @@ efficiency gains.
 \subsection{Flight}
 \label{sec:flight}
 
+The flight trials raise a number of interesting questions and issues.
 
+Firstly, how should take-off and landing be handled? The localisation
+is particularly likely to fail near the ground, especially during
+takeoff and landing. Looking at the laser scans, the data seems to be
+mostly ``noisy'', and not meaningful.
 
-\subsection{Software: future work}
+This could be due to a number of different factors. The uneven nature
+of the ground near trees is an obvious candidate. Any deviation of the
+scan plane from parallel will also be much more noticeable on near the
+ground.
+
+To deal with this, the \texttt{tree\_fix} package was patched to also
+consume the \texttt{/height} topic from \texttt{scan\_to\_height}, and
+only process the laser scan when the height is above a threshold,
+currently 1m.
+
+Future work could look at integrating the low altitude data into a
+more complete model, although it would be advisable to discard very
+low data - say below 0.5m or so.
+
+Secondly, how should other noisy/erroneous/confusing data be handled? The tennis court
+flight in particular features two kinds of noise: a person getting in
+the laser scan, and tree foliage.
+
+With regards to people, the algorithm is particularly hamstrung by the
+inability to \emph{remove} points from its view of the world. The
+noise point stays on the map, and tends to cause problems with
+matching. Replacing the `map' with a proper representation that takes
+uncertainty into account would help to alleviate this.
+
+With regards to foliage, again better image processing is likely to
+be key to fixing this. The problem can be reduced by increasing the
+points threshold for a match to 90, but this comes at the cost of
+reduced detection. Perhaps a more appropriate fix is to try and find a
+circle that includes all the noise and is roughly centred on the tree
+trunk. This ties in well with the concept of a 3D model of trees,
+rather than a pure 2D one (see Section~\ref{sec:tree-detector}).
+
+Another apparent fix observed during testing was simply to process
+scans at a lower rate: instead of processing 1 in 10 (4 Hz),
+processing 1 in 20 (2 Hz) reduced the problem. This is probably an
+artefact of the particular data set --- it just managed to skip the
+problematic frames by chance. It should not be considered as a
+general approach to the problem.
+
+\section{Software: future work}
 \label{sec:softw-future-work}
 
-Future work
- - Replace the filter
+\subsection{Summary of key node-related work}
+\label{sec:summary-key-node}
 
+A number of pieces of future work are highlighted in the Software
+chapter (Chapter~\ref{sec:software}). This section seeks to highlight
+what is considered to be the biggest and most pressing aspects of
+future work.
+
+Firstly, the filter used in the tree-localization node is a primitive
+averaging filter. This should really be replaced with a Kalman
+filter. Both the polar scan matcher node and the tree matching
+processes provide covariance estimates, and provide or can trivially
+provide velocity estimates as well, making them ideally suited to
+being combined in this way.
+
+Secondly, the tree detection used in the tree-detector node is so
+basic that it is amazing it works as well as it does. Updating it to
+actually fit circles properly will vastly increase the stability of
+tree detection, reduce error, make it possible to provide and use
+radius data, and --- implemented carefully --- it will make the
+processing much faster.
+
+\subsection{Future directions in tree detection}
+\label{sec:future-direct-tree}
+
+The tree-detector is based around converting the scan from its polar
+form into a cartesian form, and then processing that.
+
+A number of laser scan matching algorithms take a similar approach,
+but significant efficiency gains were realised in
+\cite{polarscanmatching} by processing the scan in its polar form,
+without conversion to cartesian form. Would it be possible to realise
+similar efficiency gains by detecting trees in polar form? Does the
+structure of the polar scan provide opportunities to increase
+detection accuracy?
+
+To investigate, some simple simulation was conducted in MATLAB. 
+
+Firstly, as shown in Figure~\ref{fig:generic-scene}, a `generic' scene
+was transformed from the cartesian form to a polar representation,
+where the scan angle forms the $x$-axis, and the radius from the
+scanner froms the $y$-axis. This shows the features one would readily
+expect from a polar coordinate form: for example, lines become
+curves. This seems to show the trees with a somewhat distinctive
+shape, but it's hard to determine quite what.
+
+\begin{figure}[h]
+  \centering
+  \fbox{\includegraphics[width=0.5\textwidth]{figs/polartest}}\\
+  ~\\
+  \fbox{\includegraphics[width=0.9\textwidth]{figs/polarpolartest}}
+  \caption{A generic scene (top) transformed from cartesian to polar and plotted (bottom). The origin angle has been shifted to aid comprehension.}
+  \label{fig:generic-scene}
+\end{figure}
+
+To get a better idea of what we're looking for,
+Figure~\ref{fig:scene-filled} shows what would happen if the entire
+tree was known in the polar coordinate-system. (Obviously by the
+nature of the laser scanner this isn't possible in an actual scan, but
+it's nonetheless helpful to understand the shape.) This reveals an
+`egg' shape.
+
+\begin{figure}[h]
+  \centering
+  \fbox{\includegraphics[width=0.5\textwidth]{figs/polartest2}}\\
+  ~\\
+  \fbox{\includegraphics[width=0.9\textwidth]{figs/polarpolartest2}}
+  \caption{A generic scene with complete circles (top) transformed from cartesian to polar and plotted (bottom). The origin angle has been shifted to aid comprehension.}
+  \label{fig:generic-scene}
+\end{figure}
+
+
+A further test in Figure~\ref{fig:6circles} shows a scene with just
+trees, different sizes and at different radial distances;
+investigating the change this makes in shape.
+
+\begin{figure}[h]
+  \centering
+  \fbox{\includegraphics[width=0.5\textwidth]{figs/6circles}}\\
+  ~\\
+  \fbox{\includegraphics[width=0.9\textwidth]{figs/polar6circles}}
+  \caption{A generic scene with complete circles (top) transformed from cartesian to polar and plotted (bottom). The origin angle has been shifted to aid comprehension.}
+  \label{fig:6circles}
+\end{figure}
+
+Overall, these figures show that cartesian circles, when examined in
+polar form, regardless of location, transform into quite a unique
+`egg' shape, which can be distinguished from other types of shape,
+including lines and corners.
+
+A more rigorous mathematical approach would be required to quantify
+the parameters of the shape, but once that is done, it may be possible
+to detect circles in the polar form, leading to time and memory
+savings.
+
+Furthermore, this process should be more resilient against false
+detections because it can take advantage of the polar nature of the
+scan: not only does it avoid a large number of multiplications and a
+memory accesses, it does not require a continuous (in the Cartesian
+frame) set of points that the current detector does. This should allow
+the blurring step to be removed. This should help because while the
+blurring step is important for the current detection method to work,
+it makes it easier to fit a circle to noise. Furthermore, methods
+derived from the polar frame may require fewer points to get a
+meaningful result, allowing for detection at greater range.
+
+Ultimately, this has potential to be quite a useful avenue of future
+investigation.
+
+\subsection{Maintenance}
+\label{sec:maintenance}
+
+A final point worth highlighting is software maintenance. A large
+amount of effort went into updating the Polar Scan Matcher node to
+work with recent versions of ROS. For this code, and the other code
+written for this project to continue to be useful in the future, it
+will need to be kept up to date, preferably as new versions of ROS
+come out, rather than in one big jump several versions down the
+line. Fortunately, by placing the data and code on GitHub, it becomes
+much easier to use a Continuous Integration platform like
+TravisCI\footnote{\url{https://travis-ci.org}} to test against
+multiple versions of ROS. Those who continue this project into the
+future are strongly encouraged to take up this opportunity to bring
+modern software practises to bear on the project.
 
 \section{Discussion of hardware}
 \label{sec:discussion-hardware}
-
-% This is sort of inherent.
-%\subsection{Hardware: future work}
-%\label{sec:hardw-future-work}
-
-\subsection{Weight}
+\subsection{Future work: Weight}
 \label{sec:weight}
-
 
 A major concern regarding the hardware is the weight. Requiring 70\%
 throttle severely limits the flight time of the hexacopter, and also
@@ -1364,26 +1739,122 @@ hour, or if we want to ensure that we never drop below 25\% capacity:
 \end{equation}
 
 A 1200mAh 3 cell LiPo would weigh significantly less than the current
-\todo{check?} mAh, 4 cell battery.
+3300mAh, 4 cell battery (330g). (For instance, a 1800mAh battery weighs
+in at 110g, and a 2200mAh battery weighs in at 163g.)
+
+\subsubsection{PC selection}
+\label{sec:electr-gener}
+
+The previous section took as fixed the computer used in the
+system. What if it wasn't? It may be possible to change the computer
+for one which runs on 5V only, allowing a much greater voltage
+variation to occur before problems are experienced. Two obvious
+candidates are the Raspberry Pi (\todo{cite}) and the BeagleBone Black
+(\todo{cite}). Both of these boards run on 5V, consume vastly less
+power, and weigh much less than the LP-170C board currently in
+use. However, they come with their own set of complications:
+
+\begin{description}
+\item[Computational Power] The LP-170C has a 1.8GHz Atom CPU, whereas
+  the BeagleBone has a 1GHz ARM Cortex A8, and the Raspberry Pi has a
+  700MHz ARMv6 CPU.
+
+  This obviously gives the LP-170C a significant (almost 2-fold)
+  advantage in sheer computational grunt. Whether or not this will
+  actually be an issue is unknown. Certainly with the current
+  inefficient tree detection, the difference is likely to require a
+  lower frame rate, but if the process can be done without conversion
+  from polar to rectangular and the use of costly OpenCV operations,
+  this advantage may fall away.
+\item[Memory] The LP-170C has 4GB of memory, compared to 512MB on both
+  the BeagleBone and the Raspberry Pi. While that's significantly
+  less, it is very likely that most of the extra memory on the LP-170C is sitting
+  idle. The board is not doing extensive graphics processing; it's not
+  running a desktop environment; it's not doing particularly
+  memory-intensive processing. (For instance, the map produced by the
+  tree detector is presently 1200 by 1200 pixels, which given it's
+  greyscale, equates to a mere 1.4 MB.)
+\item[I/O] The LP-170C uses a CF card, the Raspberry Pi uses a SD
+  card, and the BeagleBone has 4 GB of onboard flash.
+
+  There are two relevant considerations: capacity and speed. While the
+  BeagleBone has the most limited storage, it's still more than enough
+  for a complete ROS distribution, especially if installed with care
+  to avoid bringing in unnecessary items like RViz and a desktop
+  environment.
+
+  Of more pressing concern is the speed of the relevant storage
+  technologies. The speed of writing a 768KB chunk has already proven
+  to be problematic on the LP-170C (see Section~\todo{ref}), and
+  Raspberry Pis are notorious for poor IO performance. The
+  BeagleBone's performance would need to be tested, but it's
+  difficult to imagine it being significantly worse than either of the
+  alternatives.
+\item[Extensibility] All the solutions proposed support USB, which is
+  by far the most likely avenue for extension peripherals. The LP also
+  supports PCI-E mini-card, but it's difficult to see how this would
+  be of benefit. The Raspberry Pi and the BeagleBone Black support
+  GPIO with readily accessible sets of pins, which may be useful for
+  integrating with the autopilot system.
+\item[Graphics] The three have varying graphics hardware. However, the
+  only use for this hardware is in setup and debugging: no graphics
+  card processing is being contemplated. All the systems are perfectly
+  suitable for this.
+\end{description}
+
+In conclusion, the Raspberry Pi is probably unwise, given its low
+grunt and dismal IO, but serious consideration should be given to the
+BeagleBone Black, especially if it becomes possible to process the
+scan for trees using the polar method discussed in
+Section~\ref{sec:future-direct-tree}, as that would largely obviate
+the processing power issue.
+
+If a BeagleBone Black could be deployed, it could safely be run on the
+main power with an appropriate regulator. That would leave only the
+laser scanner requiring a regulated 12V source. The scanner is also
+probably less likely to be significantly affected by temporary
+fluctuations in voltage, although this would need to be verified.
+Ultimately this may enable the system to run on a single battery,
+which would be a significant weight saving.
 
 \subsubsection{Other ways of reducing weight}
 \label{sec:other-ways-reducing}
 
 As the landing gear was assembled largely as a prototype, there are
-also other potential weight savings that could be realised by a
-redesign and rebuild.
+other potential weight savings that could be realised by a redesign
+and rebuild.
 
+With reference to Figure~\ref{fig:potential-hw-savings}, the following
+aspects should be considered in future work:
 
-      \begin{figure}
-        \centering
-        \includegraphics[width=0.7\textwidth]{figs/potential-hw-savings}
-        \caption{Potential savings in hardware weight.\\\textbf{Yellow}: Gimbal top plate\\\textbf{Red}: Gimbal clamps attaching to top plate\\\textbf{Green}: Long power and USB cable from scanner.}
-        \label{fig:potential-hw-savings}
-      \end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/potential-hw-savings}
+  \caption{Potential savings in hardware weight.\\\textbf{Yellow}: Gimbal top plate\\\textbf{Red}: Gimbal clamps attaching to top plate\\\textbf{Green}: Long power and USB cable from scanner.}
+  \label{fig:potential-hw-savings}
+\end{figure}
+
+\begin{itemize}
+\item Presently, the gimbal is mounted to the anti-vibration mount by
+  means of cable ties attaching the mount to the top plate of the
+  gimbal (yellow arrow). The top plate itself is attached to the
+  central beam by means of two metal clamps (the front clamp is shown
+  by the red arrow). Future work should investigate removing the top
+  plate entirely, and attaching the beams to the anti-vibration mount
+  either directly or though the existing clamps. This may require a
+  redesign of the bottom plate of the anti-vibration mount, which has
+  very unhelpfully positioned holes and cutouts.
+\item There is a lot of excess cable bulk (green arrow), comprising
+  both a USB cable and a combined power/serial cable for the
+  scanner. Due to the prototype nature of the project, the excess
+  cable was not cut out. However, if the project proceeds with this
+  scanner, the cables should be shortened.
+\end{itemize}
 
 An additional design goal that should be considered when reducing
-weight is to balance the hexacopter as a whole. \todo{explain}
-
+weight is to balance the hexacopter as a whole, which will increase
+its efficiency and make it easier to fly. This will require a
+more holistic design process than what was undertaken previously.
 
 \subsection{Landing damage}
 \label{sec:landing-damage}
@@ -1392,29 +1863,58 @@ weight is to balance the hexacopter as a whole. \todo{explain}
 A second concern is damage caused to the hardware by a hard landing on
 the second flight trial.
 
- - Results of the crash.
+Regrettably, no pictures were taken immediately after the landing, so
+Figure~\ref{fig:damage} highlights areas of interest for discussion.
 
- \begin{figure}
-   \centering
-   \includegraphics[width=0.9\textwidth]{figs/damage}
-   \caption{Identification of areas of interest from crash.}
-   \label{fig:damage}
- \end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/damage}
+  \caption{Identification of areas of interest from crash.}
+  \label{fig:damage}
+\end{figure}
 
-    - put a frame around the top too.
-    - see also the issues identified with the base plate anyway.
+In the figure, the yellow circle identifies a gimbal joint that
+`popped out', leading to a partial break along the red
+line. Fortunately the break was not all the way through, so it was
+possible to pop the joint back into place.
 
+However, future work should address the obvious weakness this
+reveals. Instead of merely having a plate on the base, there should
+also be a plate at the top of the gimbal to provide the extra
+rigidity. The frame will need to go around the scanner, and the design
+will need to consider relocating the downwards reflecting mirror in
+line with Section~\ref{sec:height-meas-setup}.
 
+The base plate should also be redesigned in line with
+Section~\ref{sec:mk-ii}: accidentally designing the screw holes to be
+too small may well have been a contributing factor. When re-fabricating
+the plate, it may also be worth considering a more durable material
+than 3mm MDF.
 
-\section{Future work}
+\section{Future directions}
 \label{sec:future-work}
 
- - Link into control
+Previous sections have considered future work in software and
+hardware. This section considers future work in the system and project
+more generally.
 
-\section{Other comments}
-\label{sec:other-comments}
+\section{Developing autonomy}
+\label{sec:developing-autonomy}
 
+The obvious future step for this project is to link the positioning
+information into a control system. This ties in with the broader
+context of forest exploration and the problem posed in the
+introduction of locating people in a forest.
 
+This will involve coordinating manual and automatic control,
+especially for takeoff and landing, as well as having a manual
+override in case of problems. However, ROS-MAVLink interaction is not
+a new area, and so existing resources can be found to aid in this process.
+
+\section{Other directions}
+\label{sec:other-directions}
+
+Following \cite{achtelik2009stereo}, integrate laser with vision.
 
 \chapter{Conclusion}
 \label{cha:conclusion}
