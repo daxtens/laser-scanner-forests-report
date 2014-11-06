@@ -103,14 +103,99 @@ Abstract!
 %contribution or what were the new skills learned to build the widget) 
 %explicitly stating what your contribution was. 
 
-This project set out to achieve the ambitious goal of hovering
+\textbf{This is a research project with strong design and build elements.}
 
-it achieved
+This project set out to achieve the ambitious goal of hovering a
+hexacopter in a fixed position, outdoors, using a laser scanner with
+polar scan matching to provide position information. During the course
+of the project, it was determined that unaided polar scan matching
+would not be sufficient, due to the drift inherent in the
+technique. Therefore, the project explored how the position can be
+corrected by detecting trees, and using their fixed positions. I wrote
+new code to explore this, and concluded that is possible, and indeed
+feasible in real time. As a result of this new direction, hovering
+control was not attempted.
 
-my contribution was
+The goal can therefore be summarised as providing an answer to the
+following question:
+\begin{quote}
+  Are laser scanners feasible for autonomous navigation of hexacopters in forests?
+\end{quote}
 
-- learned solidworks
+The outcomes of this project can be summarised in terms of the
+\textbf{hardware} designed and built, the \textbf{software} written,
+and the \textbf{knowledge} gained towards answering the main
+question. In addition, the project assisted in \textbf{skill
+  development}.
 
+\section{Hardware}
+\label{sec:hardware-1}
+
+The project required \emph{designing and building} a
+gimbal-stabilised, vibration-damped mount for a laser scanner, and
+mounting it on landing gear for a hexacopter.
+
+The major parts --- gimbal, anti-vibration mount, onboard computer, laser
+scanner, hexacopter and landing gear --- were supplied, but they needed
+to be put together, both mechanically and electrically.
+
+The outcome of this part is a working payload with those parts
+mounted, that has been tested and is known to work. This required both
+physical hardware development, and electrical work. All the designs
+are original. Fabrication of the parts from my designs was done on a
+laser cutter by Alex Martin.
+
+During flight tests, the hexacopter was flown by Jon Kim.
+
+\section{Software}
+\label{sec:software-1}
+
+The project required significant development within the ROS
+environment. Chapter~\ref{sec:software} details which software
+components were new to this project, but in summary, this author:
+\begin{itemize}
+\item Undertook significant work updating, debugging and adapting the
+  Polar Scan Matcher node. This node was written before the project,
+  but required significant work throughout the course of the
+  project. This node is written in C++.
+\item Wrote completely new nodes in Python to detect trees and
+  determine the position of the hexacopter based on the tree
+  positions.
+\end{itemize}
+
+The software is designed to be reusable in future projects, so the
+software itself is an outcome.
+
+\section{Knowledge}
+\label{sec:knowledge}
+
+Together, the software and hardware aimed to provide the tools
+necessary answer the original question: are laser scanners feasible
+for autonomous navigation of hexacopters in forests?
+
+The project contributes to answering this question, both in providing
+evidence that laser scanner navigation is indeed feasible, and in
+providing suggestions for implementation and for future research.
+
+\section{Skill Development}
+\label{sec:skill-development}
+
+The following new skills were developed during this project.
+
+\begin{itemize}
+\item SolidWorks, for design of physical components.
+\item Arduino programming, for the gimbal.
+\item Flying skills
+\item Familiarity with the ROS (Robot Operating System) environment.
+ \end{itemize}
+ 
+The following existing were used/developed:
+\begin{itemize}
+\item Basic electronics and soldering skills
+\item Basic hardware skills
+\item C++ programming
+\item Python programming
+\end{itemize}
 
 \section{Reproducible Research}
 \label{sec:repr-rese}
@@ -139,9 +224,6 @@ While their application is more limited, all the relevant CAD files
 have also been uploaded to the same place.
 
 \todo{verify that all code and data are there}
-
-\todo{move stuff over from various-ros-packages}
-
 
 
 \chapter{Introduction}
@@ -423,7 +505,7 @@ Figure~\ref{fig:converter} below.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.33\textwidth]{figs/converter}
+  \includegraphics[width=0.2\textwidth]{figs/converter}
   \caption{One of the switching converters}
   \label{fig:converter}
 \end{figure}
@@ -444,7 +526,7 @@ battery, regulator and load all share a common ground).
 In addition, a locking connector was installed onto the gimbal
 controller board instead of the original two pin connector. (In
 addition, the connector can only be inserted one way, eliminating the
-chance of destroying another board.)
+risk of destroying another board.)
 
 \section{Height measurement setup}
 \label{sec:height-meas-setup}
@@ -489,6 +571,7 @@ hot glue. This assembly mounts on the top of the support - future
 assemblies should mount on the bottom side of the top of the support,
 with screws going upwards into the support, rather than downwards.
 
+\newpage~\newpage
 \section{Attaching to hexacopter landing gear}
 \label{sec:attach-hexac-land}
 
@@ -519,12 +602,12 @@ anti-vibration plate.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\textwidth]{figs/pc-avm}
+  \includegraphics[width=0.7\textwidth]{figs/pc-avm}
   \caption{The key (interior) parts of the anti-vibration mount (front), with the PC mount plate (back) showing the shared cutouts for cable ties.}
   \label{fig:pc-avm-mount}
 \end{figure}
 The board is mounted to the landing gear with cable ties and hot glue.
-
+\newpage~\newpage
 \section{Concluding remarks}
 \label{sec:concluding-remarks}
 
@@ -818,6 +901,10 @@ being inadvertently detected as trees.
 Furthermore, there are a number of improvements that can be made to
 the speed and robustness of the algorithm.
 \begin{itemize}
+\item The map uses 1 pixel per centimeter. This provided good early
+  experimental results, but is quite costly in terms of both memory
+  and speed. This could probably be reduced, especially if a different
+  algorithm was used.
 \item Presently, the points are placed into a map, which, for memory
   and speed reasons, is fairly small. However, the map is very sparse,
   because in an outdoor environment most of the points are out of range.
@@ -873,14 +960,14 @@ In very broad brush strokes, the process is as follows:
 Implementation details make the algorithm more complex in
 practise. The implemented algorithm is shown in
 Figure~\ref{fig:tree_fix} and fleshed out in more detail below.
-
+\newpage
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.65\textwidth]{figs/tree_fix}
+  \includegraphics[width=0.7\textwidth]{figs/tree_fix}
   \caption{Flowchart describing the operation of \texttt{tree\_fix}}
   \label{fig:tree_fix}
 \end{figure}
-
+\newpage
 The algorithm as implemented is:
 \begin{itemize}
 \item Keep track of the last translation and yaw correction. Initially
@@ -892,23 +979,51 @@ The algorithm as implemented is:
   the nearest known point is no further than a given threshold away.
 \item If there are two or more points in common, a roto-translation (a
   rotation plus a translation) is then calculated such that the RMS
-  error is minimised. This is done as follows. \todo{Put in proper
-    equations!}
-  \begin{itemize}
-  \item Call the sets of points $A$ and $B$.
-  \item The centroid of both set of points is taken, and subtracted
-    from the every point in the set. This makes their average position
-    zero. Call the new sets $A'$ and $B'$.
-  \item Define a search window of $W$ radians. Try $N$ angles in
-    $[-W,W]$, and for each angle construct a rotation matrix.
-  \item Determine which rotation matrix minimises RMS error.
-  \item Determine the translation matrix for the chosen rotation
-    matrix.
-  \item Return the determined matrices.
-  \end{itemize}
+  error is minimised. This is done as follows.
 
+  \IncMargin{1em}
+  \begin{algorithm}
+    \KwIn{Sets of points $A$, $B$}
+    \KwOut{Rotation matrix $R$, translation matrix $T$}
+    \BlankLine
+    \tcp{Center A and B.}
+    $A_{centroid} = $mean$(A)$\;
+    $A' \leftarrow A - A_{centroid}$\;
+    $B_{centroid} = $mean$(B)$\;
+    $B' \leftarrow B - $mean$(B)$\;
+    \BlankLine
+    \tcp{Try a set of rotations.}
+    \tcp{To be precise, try $N$ points in $[-W, W]$.}
+    $err_{min} = \infty$ \;
+    $points \leftarrow $linspace$(-W, W, N)$ \;
+    \BlankLine
+    \ForEach{$\theta \in points$}{
+      $R = $ rotation matrix for $\theta$ \;
+      $B_{rotated} = B' \times R$ \;
+      $err = $rms\_error$(B_{rotated}, A')$\;
+      \If{$err < err_{min}$}{
+        $err_{min} = err$\;
+        $\theta_{best} = \theta$\;
+      }
+    }
+    \BlankLine
+    \tcp{Find the translation that aligns the rotated center of $B$
+      with the center of $A$.}
+    $R = $ rotation matrix for $\theta_{best}$ \;
+    $T = -R \times B_{centroid} + A_{centroid}$\;
+    \BlankLine
+    \Return{(R, T)}
+  \end{algorithm}
+ 
   Previously, this was implemented using the Singular Value
-  Decomposition method, but \todo{explain how it didn't work properly.}
+  Decomposition method. However, this was found to be less reliable,
+  because the SVD can include a \emph{reflection} as well as a
+  rotation and a translation. This is physically impossible, but due
+  to the dense and largely similar nature of the forest, it was
+  returned quite often by the SVD based algorithm. The
+  roto-translation, while vastly less efficient, is much more reliable.
+
+
 \item If the common set only contains one point, then a simple
   translation is calculated, and it is assumed there is no rotation.
 \item If there are no points in common, the transform is assumed to be
@@ -1050,7 +1165,7 @@ path taken was a loop, so the net translation should be zero. However, a
 large translation is observed; trees do not stay in the same place and
 there is lots of noise.
 
-\begin{figure}[h!]
+\begin{figure}
   \centering
   \includegraphics[width=0.9\textwidth]{figs/psm-outdoor}
   \caption{PSM only, outdoors}
@@ -1058,7 +1173,7 @@ there is lots of noise.
 \end{figure}
 
 Evidently further work was required for accurate localisation.
-
+\newpage~\newpage
 \section{Tree-based localization}
 \label{sec:tree-based-local}
 
@@ -1305,13 +1420,14 @@ the hexacopter, as it ascends.
   \centering
   \includegraphics[width=0.9\textwidth]{figs/rsise-flying-results}
   \caption{RSISE flight results, showing a snapshot of the
-    flight. \todo{replot with corrected height}}
+    flight.}
   \label{fig:rsise-results}
 \end{figure}
 
 The software kept accurate localization so long as the hexacopter was
 at a reasonable height: more than 1m or so above the ground.
 
+\newpage
 \subsection{Tennis Court}
 \label{sec:tennis-court-1}
 
@@ -1327,15 +1443,37 @@ confused.
 
 As such, the flight path with the take-off and landing omitted is
 shown below in Figure~\ref{fig:flying-tennis-path}. Some stills from
-the 3D view are shown in Figure~\ref{fig:flying-tennis-3D}.
+the 3D view are shown in
+Figure~\ref{fig:flying-tennis-3D}. Figure~\ref{fig:flying-tennis-pic}
+shows a picture of the hexacopter in flight.
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/tennis-flying-results}
+  \caption{The path taken by the hexacopter through the tennis court trees.}
+  \label{fig:flying-tennis-path}
+\end{figure}
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/tennis-flying-1}\\~\\
+  \includegraphics[width=0.8\textwidth]{figs/tennis-flying-2}
+  \caption{Two 3D snapshots of the flight.}
+  \label{fig:flying-tennis-3D}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/tennis-flying-pic}
+  \caption{A picture of the hexacopter in flight through the tennis court trees.}
+  \label{fig:flying-tennis-pic}
+\end{figure}
 
 It's difficult to analyse the flight in terms of return to origin, but
 it's worth noting that the path shown accurately tracks the path
 taken, and certainly with enough accuracy for navigation and obstacle
 avoidance.
-
+\newpage
 \subsection{Conclusion --- flying}
 \label{sec:conclusion-flying}
 
@@ -1541,8 +1679,8 @@ be key to fixing this. The problem can be reduced by increasing the
 points threshold for a match to 90, but this comes at the cost of
 reduced detection. Perhaps a more appropriate fix is to try and find a
 circle that includes all the noise and is roughly centred on the tree
-trunk. This ties in well with the concept of a 3D model of trees,
-rather than a pure 2D one (see Section~\ref{sec:tree-detector}).
+trunk. This again ties in well with the concept of a 3D model of trees,
+rather than a pure 2D one.
 
 Another apparent fix observed during testing was simply to process
 scans at a lower rate: instead of processing 1 in 10 (4 Hz),
@@ -1575,7 +1713,7 @@ actually fit circles properly will vastly increase the stability of
 tree detection, reduce error, make it possible to provide and use
 radius data, and --- implemented carefully --- it will make the
 processing much faster.
-
+\newpage
 \subsection{Future directions in tree detection}
 \label{sec:future-direct-tree}
 
@@ -1600,7 +1738,7 @@ expect from a polar coordinate form: for example, lines become
 curves. This seems to show the trees with a somewhat distinctive
 shape, but it's hard to determine quite what.
 
-\begin{figure}[h]
+\begin{figure}[h!]
   \centering
   \fbox{\includegraphics[width=0.5\textwidth]{figs/polartest}}\\
   ~\\
@@ -1622,7 +1760,7 @@ it's nonetheless helpful to understand the shape.) This reveals an
   ~\\
   \fbox{\includegraphics[width=0.9\textwidth]{figs/polarpolartest2}}
   \caption{A generic scene with complete circles (top) transformed from cartesian to polar and plotted (bottom). The origin angle has been shifted to aid comprehension.}
-  \label{fig:generic-scene}
+  \label{fig:scene-filled}
 \end{figure}
 
 
