@@ -6,5 +6,5 @@
 *.toc
 _region_.tex
 *~
-*.pdf
+report.pdf
 *.rel
