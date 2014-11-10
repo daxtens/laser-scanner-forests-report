@@ -79,7 +79,27 @@
 \cleardoublepage
 \pagestyle{headings}
 %\input{abstract}
-Abstract!
+
+\section*{\centering Abstract}
+\label{sec:abstract}
+
+\begin{quote}
+  This report works towards autonomous navigation of UAVs in dense,
+  GPS denied forests by demonstrating that a laser scanner is feasible
+  for estimating position. A payload for a hexacopter is built,
+  mounting a gimbal-stabilised and vibration-damped laser scanner and
+  a miniature PC. The laser scans are processed using polar scan
+  matching to provide a position estimate. Trees are then detected in
+  the laser scan, added to an approximate map, and used as fixed
+  points to correct the position estimate. The algorithms run in real
+  time, even on low-powered computers. The system is tested by both
+  walking and flying the payload through different sets of trees. The
+  results show that this approach successfully achieves excellent
+  localization in diverse locations with no \emph{a priori}
+  knowledge.
+\end{quote}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Table of contents
 \cleardoublepage
@@ -230,24 +250,147 @@ at \url{https://github.com/daxtens/laser-scanner-forests-report}.
 While their application is more limited, all the relevant CAD files
 have also been uploaded to the same place.
 
-\todo{verify that all code and data are there}
+%\todo{verify that all code and data are there}
 
 
 \chapter{Introduction}
 \label{cha:intro}
 
+%The introduction orients the reader to your report. It should present the 
+%nature and scope of the problem in terms of applications to ‘real world’ 
+%problems (what motivates the study); 
+
+Multirotor craft have been the subject of extensive research within
+the academic community for some time. They are popular for several
+reasons. They are relatively cheap. They are highly flexible,
+especially compared to fixed wing craft. The use of multiple rotors
+enables each rotor to be smaller, and allows all the rotors to be
+enclosed in a protective ring, providing safety benefits over
+helicopters. Quadcopters have been particularly popular, but
+hexacopters are often used when a greater payload is required.
+
+A common problem in the research is the navigation of these craft. At
+the most basic level, outdoor navigation with good GPS availability
+and no unknown obstacles is largely a solved problem, with systems
+already available in commercial and hobbyist products.
+
+Indoor navigation where a map and GPS are unavailable is currently the
+subject of considerable research. Approaches include vision with a
+monocular camera \cite{5152680}, or more commonly a stereoscopic or
+depth-perceiving camera \cite{huang2011visual}. Laser scanners are
+also a common approach \cite{achtelik2009stereo}. The absence of a
+global, absolute reference and freely available maps has led to a
+proliferation of simultaneous localization and mapping (SLAM) systems
+to convert sensor data into a position with respect to a discovered
+map.
+
+An area of considerable practical interest is outdoor navigation, and
+in particular, navigation in forests.  There are significant real-world
+applications for this, such as the following motivating problem:
+\begin{quote}
+  Two hikers are lost in a forest. The forest has dense trees and
+  inhospitable terrain, such that locating the hikers with a
+  conventional search and rescue party would take too long. Therefore,
+  we wish to locate the hikers with UAVs.
+
+  How do we navigate the UAVs?
+\end{quote}
+
+Forests often exhibit limited GPS availability. Furthermore,
+the trees in forests are not known in advance, and are in close
+proximity (well below the margin of error for unaided GPS). Outdoor
+environments also provide significant additional challenges to the
+approaches adopted for indoor navigation: sensor data tends to be
+sparser, and objects considerably less regular. This is the area
+considered by this report.
+
+While vision has been attempted in this area
+\cite{langelaan2005towards}, this report \textbf{investigates the
+  feasibility of laser scanners for navigating in forests}, using the
+forest trees as fixed reference points to aid in the localization
+process.
+
+%state the method of investigation (the 
+%main technical issues, including important limitations in scope);
+
+To that end, the following method was adopted:
+\begin{itemize}
+\item A payload for a hexacopter was built, mounting a laser scanner.
+\item Software to determine the position of the hexacopter from the
+  laser scans was developed. The software has two main stages:
+  \begin{itemize}
+  \item Use Polar Scan Matching to rapidly determine an approximate
+    position.
+  \item Build up a map of trees in the forest, and use that map to
+    correct for drift in the polar matching process.
+  \end{itemize}
+\item The payload was walked through several sets of trees to determine
+  its effectiveness under idealised conditions.
+\item The payload was attached to a hexacopter and flown through sets
+  of trees to determine its effectiveness under actual flight conditions.
+\end{itemize}
+
+An important limitation in scope to note is that autonomous control
+was not attempted: the hexacopter was flown manually in flight tests.
+
+% and 
+%describe the report that follows (a sort of road-map, so that the reader 
+%knows what's to come)
+The report proceeds as follows. 
+Chapter~\ref{cha:background} lays out the relevant background. The
+hardware built and software developed are discussed in
+Chapters~\ref{sec:hardware} and \ref{sec:software} respectively. The
+test results are in Chapter~\ref{cha:results} and discussed in
+Chapter~\ref{cha:discussion}. Chapter~\ref{cha:conclusion} concludes.
+
 \chapter{Background}
 \label{cha:background}
 
-\todo{Points from \cite{achtelik2009stereo} --- or in introduction.}
+\section{Hexacopter considerations}
+\label{sec:hexac-cons}
 
-Definitions:
-\begin{itemize}
-\item Localization
-\item SLAM
-\item Quadrotor/hexacopter dynamics, challenges as compared to ground robots.
-\end{itemize}
+While hexacopters have a number of advantages, they have a number of
+limitations that form an important background to the design decisions
+taken in this project.
 
+Firstly, they have a constrained payload. While the additional two
+motors give hexacopters a significant advantage over quadcopters, they
+are still severely weight constrained. This has two effects:
+constrained sensors, and constrained onboard computation.
+
+The constraint on sensor weight limits the suite of sensors available,
+restricting both the variety and quality of sensors. For example, a
+UAV could have a high precision inertial measurement unit, multiple
+laser scanners, and multiple Kinects and use sensor fusion to get an
+even better estimate of position and a high quality 3D map, but that's
+simply too heavy.
+
+Furthermore, constrained onboard computational power requires
+selection of algorithms that are fast, often at the cost of
+accuracy. Alternatively, sensor data can be transmitted to a base
+station for computation, increasing complexity and latency.
+
+Secondly, the hexacopters have unstable flight dynamics. Rapid control
+is required, meaning that algorithms must operate in real time and
+with low latency. This exacerbates the problems caused by constrained
+onboard computation.
+
+Finally, because the UAV is flying, sensors cannot give direct
+odometry measurements, and the craft has limited scope to `hold
+position' and get a more accurate location reading.
+
+\section{Key terminology}
+\label{sec:key-terminology}
+
+Two key concepts or terms are localization and SLAM.
+
+Localization refers to the process whereby an agent
+determines its position with respect to a known map.
+
+Simultaneous localization and mapping (SLAM) goes a step further: what
+if an agent is placed in an environment that is unknown? To determine
+its position, it must also create a map of its environment --- it must
+simultaneously localize itself and map its environment.
 
 \section{Literature Survey}
 \label{sec:litsurvey}
@@ -2116,6 +2259,44 @@ too small may well have been a contributing factor. When re-fabricating
 the plate, it may also be worth considering a more durable material
 than 3mm MDF.
 
+\chapter{Conclusion}
+\label{cha:conclusion}
+
+%Your conclusion should not restate the results; instead, it should refer back 
+%to the ‘real world’ problem that motivated the study in the first place. 
+%What questions associated with that problem are you now able to answer? 
+%You may also make recommendations for further study
+
+This report set out to answer the question: 
+\begin{quote}
+  \textbf{Are laser scanners feasible for autonomous navigation of
+    hexacopters in forests?}
+\end{quote}
+
+The results can be summarised as follows.
+
+In terms of hardware, the gimbal and anti-vibration mount successfully
+kept the scanner stable when walking and when flying, such that the
+data was not unduly affected by vibrations, and accuracy was not
+degraded.
+
+In terms of software:
+\begin{itemize}
+\item The modified polar scan matcher provides a position estimate in
+  a forest-like environment that is accurate in the short term but
+  drifts in the long term.
+\item The tree detection SLAM provides corrections to the position
+  that provide excellent accuracy over the long term. The system is,
+  however, somewhat unstable in the presence of error.
+\item The entire process can be completed in real time on the on-board
+  computer, without requiring that any computation be offloaded to a
+  base station.
+\end{itemize}
+
+Therefore, in conclusion, this project supports the conclusion that
+laser scanners are feasible for autonomous navigation of hexacopters
+in forests.
+
 \section{Future directions}
 \label{sec:future-work}
 
@@ -2155,20 +2336,29 @@ going to hit something above or below it.
   the map of trees.
 \end{itemize}
 
+In addition, getting access to data from the onboard IMU --- even
+given its limited accuracy --- would be useful. For example, in the
+final moments of the tennis court flight, there were no useful points
+for the laser scanner. Having access to IMU data would have given at
+least a rough estimate of the rotation of the hexacopter, which would
+have been very helpful.
+
 A particularly interesting direction that could be considered,
 especially with reference to the problem of forest exploration posed
 in the introduction, is the use of multiple cooperative
 hexacopters.
 
-\chapter{Conclusion}
-\label{cha:conclusion}
-
 \section{Acknowledgements}
 \label{sec:acknowledgements}
 
+Lastly, I wish to acknowledge:
+
 \begin{itemize}
-\item Jon Kim
-\item Alex Martin
+\item Jon Kim, for his able supervision, his consistently helpful
+  suggestions and encouragement, and for flying the hexacopter.
+\item Alex Martin, for his work fabricating the laser-cut parts,
+  providing the front-faced mirror, and for his helpful advice on
+  construction.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
