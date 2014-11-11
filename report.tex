@@ -12,7 +12,7 @@
 %\usepackage[palatino]{anuthesis}
 \usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage[left=2.5cm,top=2cm,bottom=2cm,right=2.5cm]{geometry}
+\usepackage[left=3cm,top=2cm,bottom=2cm,right=2cm]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{gensymb}
@@ -31,8 +31,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Preamble
-\title{Investigating the feasibility of laser scanners for autonomous
-  navigation of hexacopters in forests}
+\title{Investigating the Feasibility of Laser Scanners for Autonomous
+  Navigation of Hexacopters in Forests}
 \author{Daniel Axtens}
 \date{\today}
 
@@ -51,6 +51,7 @@
 \newacronym{IC}{IC}{Integrated Circuit}
 \newacronym{MDF}{MDF}{Medium Density Fibreboard}
 \newacronym{SVD}{SVD}{Singular Value Decomposition}
+\newacronym{CSM}{CSM}{Canonical Scan Matching}
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -131,148 +132,7 @@
 %% Here begins the main text
 \mainmatter
 
-\part{Introduction}
-\chapter{Aims and Contribution}
-\label{cha:aims}
-
-%It is often difficult to determine exactly what in the report is the student's 
-%own work, what is new and what the actual aims and outcomes were. Each 
-%report is required to have a section that specifically sets out what the goals 
-%and outcomes of the project were. For example, did you undertake:
-%- a research project that contributed new knowledge;
-%- a simulation project that required you to replicate relatively 
-%complicated, but previously published (by someone else) results;
-%- a design project which took into account skills learned during your 
-%degree – or new skills you had to acquire;
-%- a build project based on someone else’s design (e.g., your 
-%supervisor or an otherwise published design), but requiring the 
-%application, and possibly learning, of some analytical skills.
-%This section should then detail the outcome (e.g. what was the research 
-%contribution or what were the new skills learned to build the widget) 
-%explicitly stating what your contribution was. 
-
-\textbf{This is a research project with strong design and build elements.}
-
-This project set out to achieve the ambitious goal of hovering a
-hexacopter in a fixed position, outdoors, by using a laser scanner with
-polar scan matching to provide position information. During the course
-of the project, it was determined that unaided polar scan matching
-would not be sufficient, due to the drift inherent in the
-technique. Therefore, the project explored how the position can be
-corrected by detecting trees, and using their fixed positions. I wrote
-new code to explore this, and concluded that is possible, and indeed
-feasible in real time. As a result of this new direction, hovering
-control was not attempted.
-
-The revised goal can be summarised as providing an answer to the
-following question:
-\begin{quote}
-  \textbf{Are laser scanners feasible for autonomous navigation of
-    hexacopters in forests?}
-\end{quote}
-
-The outcomes of this project can be expressed in terms of the
-\textbf{hardware} designed and built, the \textbf{software} written,
-and the \textbf{knowledge} gained towards answering the main
-question. In addition, the project assisted in \textbf{skill
-  development}.
-
-\section{Hardware}
-\label{sec:hardware-1}
-
-The project required \emph{designing and building} a
-gimbal-stabilised, vibration-damped mount for a laser scanner, and
-mounting it on landing gear for a hexacopter.
-
-The major parts --- gimbal, anti-vibration mount, onboard computer, laser
-scanner, hexacopter and landing gear --- were supplied, but they needed
-to be put together, both mechanically and electrically.
-
-The outcome of this part was a working payload with those parts
-mounted, that was tested and proven to work. This required both
-physical hardware development, and electrical work. All the designs
-are original. The parts were fabricated on a laser cutter by Alex
-Martin.
-
-During flight tests, the hexacopter was flown by Jon Kim.
-
-\section{Software}
-\label{sec:software-1}
-
-The project required significant development within the \gls{ROS}
-environment. Chapter~\ref{sec:software} details which software
-components were new to this project, but in summary, this author:
-\begin{itemize}
-\item Undertook significant work updating, debugging and adapting the
-  Polar Scan Matcher node. This node was written before the project,
-  but required significant work throughout the course of the
-  project. This node was written in C++.
-\item Wrote completely new nodes in Python to detect trees and
-  determine the position of the hexacopter based on the tree
-  positions.
-\end{itemize}
-
-The software was designed to be reusable in future projects, so the
-software itself is an outcome.
-
-\section{Knowledge}
-\label{sec:knowledge}
-
-The software and hardware aimed to provide the tools
-necessary answer the original question: are laser scanners feasible
-for autonomous navigation of hexacopters in forests?
-
-The project contributes to answering this question, by testing the
-hardware and software developed in real unstructured environments. The
-results provide evidence that laser scanner navigation is indeed
-feasible. The project also provide suggestions for further
-implementation work and for future research.
-
-\section{Skill Development}
-\label{sec:skill-development}
-
-The following new skills were developed by this author during this project.
-
-\begin{itemize}
-\item SolidWorks, for design of physical components.
-\item Arduino programming, for the gimbal.
-\item Familiarity with the \gls{ROS} environment.
- \end{itemize}
- 
-The following existing were skills used/developed:
-\begin{itemize}
-\item Basic electronics and soldering skills
-\item Basic hardware skills
-\item C++ programming
-\item Python programming
-\end{itemize}
-
-\section{Reproducible Research}
-\label{sec:repr-rese}
-
-Reproducibility is a core requirement of scientific research. Results
-can only be trusted if they can be replicated by others. In addition
-to increasing transparency and confidence in the scientific process,
-reproducibility accelerates scientific progress by making it easier to
-verify, continue and extend prior work.
-
-Traditionally, reproducibility was accomplished by publishing papers
-that clearly and concisely explained the work done. However, with the
-enormous complexity of many projects, it is impossible to include the
-complete details within a report of reasonable length. Fortunately,
-the internet makes it easy to provide not just all the details, but
-all the code and all the data. Full reproducibility --- at least of
-software elements --- should be a key goal.
-
-As such, this report, the code written for it, and the data sets
-analysed, have been made freely available online. They can be accessed
-at \url{https://github.com/daxtens/laser-scanner-forests-report}.
-While their application is more limited, all the relevant CAD files
-are available from the same address.
-
-%\todo{verify that all code and data are there}
-
-
+%\part{Introduction and Background}
 \chapter{Introduction}
 \label{cha:intro}
 
@@ -323,10 +183,10 @@ navigation: sensor data tends to be sparser, and objects considerably
 less regular. This is the area considered by this report.
 
 While vision has been attempted in this area
-\cite{langelaan2005towards}, this report \textbf{investigates the
-  feasibility of laser scanners for navigating in forests}, using the
-forest trees as fixed reference points to aid in the localization
-process.
+\cite{langelaan2005towards}, this report investigates the feasibility
+of using a laser scanner to provide real-time laser odometry for
+navigating in forests, using the forest trees as fixed reference
+points to aid in the localization process.
 
 %state the method of investigation (the 
 %main technical issues, including important limitations in scope);
@@ -351,68 +211,176 @@ To that end, the following method was adopted:
 
 An important limitation in scope to note is that autonomous control
 was not attempted: the hexacopter was flown manually in flight tests.
+\newpage
 
 % and 
 %describe the report that follows (a sort of road-map, so that the reader 
 %knows what's to come)
-The report proceeds as follows. 
-Chapter~\ref{cha:background} lays out the relevant background. The
-hardware built and software developed are discussed in
-Chapters~\ref{sec:hardware} and \ref{sec:software} respectively. The
-test results are in Chapter~\ref{cha:results} and discussed in
-Chapter~\ref{cha:discussion}. Chapter~\ref{cha:conclusion} concludes
-this report.
 
-\part{Background}
+\section{Aims}
+\label{cha:aims}
+
+%It is often difficult to determine exactly what in the report is the student's 
+%own work, what is new and what the actual aims and outcomes were. Each 
+%report is required to have a section that specifically sets out what the goals 
+%and outcomes of the project were. For example, did you undertake:
+%- a research project that contributed new knowledge;
+%- a simulation project that required you to replicate relatively 
+%complicated, but previously published (by someone else) results;
+%- a design project which took into account skills learned during your 
+%degree – or new skills you had to acquire;
+%- a build project based on someone else’s design (e.g., your 
+%supervisor or an otherwise published design), but requiring the 
+%application, and possibly learning, of some analytical skills.
+%This section should then detail the outcome (e.g. what was the research 
+%contribution or what were the new skills learned to build the widget) 
+%explicitly stating what your contribution was. 
+
+%\textbf{This is a research project with strong design and build elements.}
+
+This project set out to achieve the ambitious goal of hovering a
+hexacopter in a fixed position, outdoors, by using a laser scanner
+with polar scan matching to provide position information. During the
+course of the project, it was determined that unaided polar scan
+matching would not be sufficient, due to the drift inherent in the
+technique. Therefore, the project explored how the position can be
+corrected by detecting trees, and using their fixed positions. This
+author wrote new code to explore this, and concluded that is possible,
+and indeed feasible in real time. As a result of this new direction,
+hovering control was not attempted.
+
+The revised goal can be summarised as providing an answer to the
+following question:
+\begin{quote}
+  \textbf{Are laser scanners feasible for autonomous navigation of
+    hexacopters in forests?}
+\end{quote}
+
+\section{Contribution}
+\label{sec:contribution}
+
+The outcomes of this project can be expressed in terms of the
+\textbf{hardware} designed and built, the \textbf{software} written,
+and the \textbf{knowledge} gained towards answering the main
+question. In addition, this project assisted in \textbf{skill
+  development}.
+
+\subsection{Hardware}
+\label{sec:hardware-1}
+
+This project required \emph{designing and building} a
+gimbal-stabilised, vibration-damped mount for a laser scanner, and
+mounting it on landing gear for a hexacopter.
+
+The major parts --- gimbal, anti-vibration mount, onboard computer, laser
+scanner, hexacopter and landing gear --- were supplied, but they needed
+to be put together, both mechanically and electrically.
+
+The outcome of this part was a working payload with those parts
+mounted, that was tested and proven to work. This required both
+physical hardware development, and electrical work. All the designs
+are original. The parts were fabricated on a laser cutter by Alex
+Martin.
+
+During flight tests, the hexacopter was flown by Jon Kim.
+
+\subsection{Software}
+\label{sec:software-1}
+
+The project required significant development within the \gls{ROS}
+environment. Chapter~\ref{sec:software} details which software
+components were new to this project, but in summary, this author:
+\begin{itemize}
+\item Undertook significant work updating, debugging and adapting the
+  polar scan matcher node. This node was written prior to this
+  project, but required significant work throughout the course of this
+  project. This node was written in C++.
+\item Wrote completely new nodes in Python to detect trees and
+  determine the position of the hexacopter based on the tree
+  positions.
+\end{itemize}
+
+The software was designed to be reusable in future projects, so the
+software itself is an outcome.
+
+\subsection{Knowledge}
+\label{sec:knowledge}
+
+The software and hardware aimed to provide the tools
+necessary answer the original question: are laser scanners feasible
+for autonomous navigation of hexacopters in forests?
+
+The project contributes to answering this question, by testing the
+hardware and software developed in real unstructured environments. The
+results provide evidence that laser scanner navigation is indeed
+feasible. The project also provide suggestions for further
+implementation work and for future research.
+
+\subsection{Skill Development}
+\label{sec:skill-development}
+
+The following new skills were developed by this author during this project.
+
+\begin{itemize}
+\item SolidWorks, for design of physical components.
+\item Arduino programming, for the gimbal.
+\item Familiarity with the \gls{ROS} environment.
+ \end{itemize}
+ \newpage
+The following existing were skills used/developed:
+\begin{itemize}
+\item Basic electronics and soldering skills
+\item Basic hardware skills
+\item C++ programming
+\item Python programming
+\end{itemize}
+
+\section{Reproducible Research}
+\label{sec:repr-rese}
+
+Reproducibility is a core requirement of scientific research. Results
+can only be trusted if they can be replicated by others. In addition
+to increasing transparency and confidence in the scientific process,
+reproducibility accelerates scientific progress by making it easier to
+verify, continue and extend prior work.
+
+Traditionally, reproducibility was accomplished by publishing papers
+that clearly and concisely explained the work done. However, with the
+enormous complexity of many projects, it is impossible to include the
+complete details within a report of reasonable length. Fortunately,
+the internet makes it easy to provide not just all the details, but
+all the code and all the data. Full reproducibility --- at least of
+software elements --- should be a key goal.
+
+As such, this report, the code written for it, and the data sets
+analysed, have been made freely available online. They can be accessed
+at \url{https://github.com/daxtens/laser-scanner-forests-report}.
+While their application is more limited, all the relevant CAD files
+are available from the same address.
+
+%\todo{verify that all code and data are there}
+
+\section{Outline}
+\label{sec:outline}
+
+The report proceeds as follows.  Chapter~\ref{cha:background} lays out
+the relevant background. The system for real-time laser odometry is
+described in Chapter~\ref{cha:rtlo}. The hardware built and software
+developed are discussed in Sections~\ref{sec:hardware} and
+\ref{sec:software} respectively. The experimental results are in
+Chapter~\ref{cha:experimental-results}.  Chapter~\ref{cha:conclusion}
+concludes this report and makes suggestions for future work.
+
 \chapter{Background}
 \label{cha:background}
 
-\section{Hexacopter considerations}
-\label{sec:hexac-cons}
-
-While hexacopters have a number of advantages, they have a number of
-limitations that form an important background to the design decisions
-taken into consideration when using them.
-
-Firstly, they have a constrained payload. While the additional two
-motors give hexacopters a significant advantage over quadcopters, they
-are still severely weight constrained. This has two effects:
-constrained sensors, and constrained onboard computation.
-
-The constraint on sensor weight limits the suite of sensors available,
-restricting both the variety and quality of sensors. For example, a
-UAV could have a high precision inertial measurement unit, multiple
-laser scanners, and multiple Kinects and use sensor fusion to get an
-even better estimate of position and a high quality 3D map, but that is
-simply too heavy.
-
-Similarly, constrained onboard computational power requires selection
-of algorithms which are fast, often at the cost of accuracy.
-Alternatively, sensor data can be transmitted to a base station for
-computation. However, this comes at the cost of increased complexity
-and latency.
-
-Secondly, the hexacopters have unstable flight dynamics. Rapid control
-is required, meaning that the chosen algorithms must operate in real
-time and with low latency. This exacerbates the problems caused by
-constrained onboard computation.
-
-Finally, because the UAV is flying, sensors cannot give direct
-odometry measurements, and the craft has limited ability to `hold
-position' and get a more accurate location reading.
-
-\section{Key terminology}
-\label{sec:key-terminology}
-
-Two key concepts for this project are localization and SLAM.
-
-Localization refers to the process whereby an agent
-determines its position with respect to a known map.
-
-Simultaneous Localization And Mapping (SLAM) goes a step further: what
-if an agent is placed in an unknown environment? To determine
-its position, it must also create a map of its environment, and
-simultaneously localize itself within the map.
+Two key concepts for this project are localization and
+SLAM. \emph{Localization} refers to the process whereby an agent
+determines its position with respect to a known
+map. \emph{Simultaneous Localization And Mapping} (SLAM) goes a step
+further: what if an agent is placed in an unknown environment? To
+determine its position, it must also create a map of its environment,
+and simultaneously localize itself within the map.
 
 \section{Literature Survey}
 \label{sec:litsurvey}
@@ -522,39 +490,110 @@ respect to laser scanners), except outdoors instead of
 indoors. Therefore, the additional challenges of vastly sparser scans
 in outdoor environments are addressed.
 
+\section{Hexacopter Considerations}
+\label{sec:hexac-cons}
+
+While hexacopters have a number of advantages, they have a number of
+limitations that must be taken into consideration when designing for them.
+
+Firstly, they have a constrained payload. While the additional two
+motors give hexacopters a significant advantage over quadcopters, they
+are still severely weight constrained. This has two effects:
+constrained sensors, and constrained onboard computation.
+
+The constraint on sensor weight limits the suite of sensors available,
+restricting both the variety and quality of sensors. For example, a
+UAV could have a high precision \gls{IMU}, multiple laser scanners,
+and multiple Kinects and use sensor fusion to get an even better
+estimate of position and a high quality 3D map, but that is simply too
+heavy.
+
+Similarly, constrained onboard computational power requires selection
+of algorithms which are fast, often at the cost of accuracy.
+Alternatively, sensor data can be transmitted to a base station for
+computation. However, this comes at the cost of increased complexity
+and latency.
+
+Secondly, the hexacopters have unstable flight dynamics. Rapid control
+is required, meaning that the chosen algorithms must operate in real
+time and with low latency. This exacerbates the problems caused by
+constrained onboard computation.
+
+Finally, because the UAV is flying, sensors cannot give direct
+odometry measurements, and the craft has limited ability to `hold
+position' and get a more accurate location reading.
+
+
+\section{Laser Scan Matching}
+\label{sec:laser-scan-matching-1}
+
+Laser scan matching is a process whereby a laser scan is matched with
+a scan from a previous instant in time. The process determines the
+translation and rotation that most accurately matches the new scan
+with the old scan. This rotation and translation is an estimate of the
+movement that has occurred between the two time instants.
+
+There are a wide variety of laser scan matching algorithms, with a
+range of speed and accuracy trade-offs.
+
+A particularly common algorithm is \gls{ICP} \cite{icp}. This
+algorithm matches each point in the first scan to its closest point in
+the second scan, determines the rotation and translation that will
+reduce the mean square distance between the pairs of points, applies
+that transform, and then iterates the process repeatedly to minimise
+the error.
+
+A naive implementation of ICP has time complexity $O(n^2)$ in the
+number of points. If the search angles are constrained, this can be
+reduced to $O(kn)$, where $k$ is proportion to the angular
+resolution. Alternatively, with the use of appropriate data
+structures, the time can be reduced to $O(n\log n)$
+
+\gls{CSM} \cite{csm} is a popular ICP variant that is provided in the
+\texttt{scan\_tools} package in ROS. CSM does point to line matching
+rather than point to point matching, making it faster than ordinary
+ICP and more robust, especially in indoor case where there are lots of
+lines.
+ 
+Originally, these algorithms only matched a scan with the immediate
+preceding scan. Multiple previous scans were not stored, so fixed
+points did not remain constant over time. As such, errors accumulate
+which cause the estimated position to drift with respect to the ground
+truth over time. To address this, a some implementations use
+keyframes: rather than matching with the most recent scan, a scan is
+chosen as a keyframe, and subsequent scans are repeatedly matched with
+it. New keyframes are chosen at regular intervals or when the change
+in points is significant. This gives reduced error over time at the
+cost of greater complexity and storage requirements. This is also
+mostly suitable to an indoor environment where scans are dense and
+full of features such as walls and corners.
+
+\chapter{Real-time Laser Odometry}
+\label{cha:rtlo}
+
 \section{Polar Scan Matching}
 \label{sec:polar-scan-matching}
 
 As a key requirement of this project is to make efficient use of
 limited computational power, \gls{PSM} was chosen as the
-primary method of scan matching, over other more well known methods
+scan matching algorithm, over other more well known methods
 such as \gls{ICP}.
 
 PSM is defined in \cite{polarscanmatching}. The key idea of PSM is to
-take advantage of the polar structure of laser scans in order to increase
-efficiency. 
+take advantage of the polar structure of laser scans in order to
+increase efficiency.  The efficiency gain over ICP is quite
+significant: PSM has time complexity of $O(n)$.
 
-The efficiency gain is quite significant. A naive implementation of
-ICP has time complexity $O(n^2)$ in the number of points. If the
-search angles are constrained, this can be reduced to $O(kn)$, where
-$k$ is proportion to the angular resolution. Alternatively, with the
-use of appropriate data structures, the time can be reduced to
-$O(n\log n)$. PSM, on the other hand, has time complexity of $O(n)$.
-
-The downside of PSM is that it can only match a scan with the
-immediate preceding scan. It does not store multiple previous scans,
-meaning it cannot keep fixed points constant over time. As such,
-errors accumulate which cause PSM to drift with respect to the ground
-truth over time.
+The PSM implementation does not support keyframes, and so can only
+match a scan with the immediate preceding scan. As such, errors
+accumulate which cause PSM to drift over time.
 
 Determining the qualitative extent of this drift, and correcting for
 it, is thus a focus of this report.
-
-\part{Real-time Laser Odometry}
-\chapter{Construction: Hardware}
+\section{Hardware Construction}
 \label{sec:hardware}
 
-\section{Laser Scanner and Gimbal}
+\subsection{Laser Scanner and Gimbal}
 \label{sec:laser-scanner-gimbal}
 
 The hardware was built in two phases: Mk I around a Hokuyo
@@ -563,7 +602,7 @@ scanner,\footnote{\url{http://www.hokuyo-aut.jp/02sensor/07scanner/download/pdf/
 and Mk II around a Hokuyo UTM-30LX scanner.\footnote{\url{http://www.hokuyo-aut.jp/02sensor/07scanner/download/pdf/UTM-30LX_spec_en.pdf}}
 
 
-\subsection{Mk I}
+\subsubsection{Mk I}
 \label{sec:mk-i}
 
 Initially, the assembly was built around the UBG-04LX-F01 laser
@@ -610,8 +649,8 @@ to roughly balance the platform.
 While this was sufficient to allow testing of the software and mount,
 it was excessively heavy and degraded gimbal performance. Designing a
 replacement platform was identified as a priority for later stages of the project.
-
-\subsection{Mk I Mod II}
+\newpage
+\subsubsection{Mk I Mod II}
 \label{sec:mk-ib}
 
 During development, power was accidentally connected backwards across
@@ -632,14 +671,14 @@ spacers, with the small holes attaching to gimbal.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.4\textwidth]{figs/gmb}
-  \caption{SolidWorks render of the gimbal adaptor board.}
+  \caption{The gimbal adaptor board.}
   \label{fig:gmb}
 \end{figure}
 
-This was initially laser cut out of 3mm \gls{MDF}, however this proved too
-thick: the original mounting screws were too short to go through the
-board and in to the mounts below. A 2mm thick board proved much more
-successful, and was lighter.
+This was initially laser cut out of 3mm \gls{MDF}, however this proved
+too thick: the original mounting screws were too short to go through
+the board and in to the mounts below. A 2mm thick board was lighter
+and more successful.
  
 Replacing the board also necessitated replacing the gimbal's
 \gls{IMU}. The new IMU fortunately fit in the space taken up by the
@@ -652,8 +691,8 @@ online.\footnote{\url{http://sourceforge.net/projects/brushless-gimbal-brugi/}}
 The software was installed and tuned. It performed poorly with the
 heavy Mk I arrangement, but fixing this was postponed due to the
 upcoming Mk II.
-
-\subsection{Mk II}
+\newpage
+\subsubsection{Mk II}
 \label{sec:mk-ii}
 
 As explained in Section~\ref{sec:psm-outdoor}, it was decided to
@@ -675,7 +714,7 @@ The UTM-30LX:
 
 However, this scanner is too tall to fit neatly into the gimbal
 mount. As such, the top plate and base plate were removed and a new
-gimbal base plate was designed in SolidWorks. The plate is pictured in
+gimbal base plate was designed. The plate is pictured in
 Figure~\ref{fig:baseplate}. To allow the laser scanner to be
 positioned in such a way as to balance the gimbal, the board is
 designed with 3 sets of holes giving 3 possible mount positions.
@@ -715,7 +754,7 @@ The following optimisations could also be made:
 \end{itemize}
 
 \newpage
-\section{Onboard computer}
+\subsection{Onboard Computer}
 \label{sec:onboard-computer}
 
 A Pico-ITX form-factor single-board computer was installed to process
@@ -733,7 +772,7 @@ The board is a LP-170C Pico-ITX:\footnote{\url{http://www.commell.com.tw/Downloa
 The operating system and software set up on the computer is detailed
 in Chapter~\ref{sec:software}.
 \newpage
-\section{Power supply}
+\subsection{Power Supply}
 \label{sec:power-supply-cons}
 
 The three powered components (gimbal, scanner and PC) all require 12V
@@ -767,7 +806,7 @@ controller board instead of the original two pin connector. Unlike the
 previous connector, this connector can only be inserted one way,
 eliminating the risk of destroying another board.
 
-\section{Height measurement setup}
+\subsection{Height Measurement Setup}
 \label{sec:height-meas-setup}
 
 It is desirable for the laser scanner to also be able to provide
@@ -805,12 +844,13 @@ front of the reflective surface.
 
 When the mirror was installed, it was discovered that it was too high,
 and the entire assembly had to be tilted down and held in place with
-hot glue. This assembly mounts on the top of the support - future
-assemblies should mount on the bottom side of the top of the support,
-with screws going upwards into the support, rather than downwards.
+hot glue. This issue occurs because the assembly mounts on the top of
+the support. Future assemblies should mount on the bottom side of the
+top of the support, with screws going upwards into the support, rather
+than downwards.
 
 \newpage
-\section{Anti-vibration Mount}
+\subsection{Anti-vibration Mount}
 \label{sec:attach-hexac-land}
 
 The gimbal was mounted to an anti-vibration mount with cable
@@ -848,7 +888,7 @@ The board is mounted to the landing gear with cable ties to bear the
 load and hot glue to damp vibrations.
 
 \newpage~\newpage
-\section{The complete assembly}
+\subsection{The Complete Assembly}
 \label{sec:concluding-remarks}
 
 Figure~\ref{fig:mk2} is a picture of the complete assembly.
@@ -862,8 +902,8 @@ Figure~\ref{fig:mk2} is a picture of the complete assembly.
 
 The total weight of the assembly is around 1.4kg, not including
 batteries. The battery used weighs 330g.
-
-\chapter{Construction: Software}
+\newpage
+\section{Software Construction}
 \label{sec:software}
 
 The software is built on top of ROS, the Robot Operating System
@@ -873,7 +913,17 @@ perform a small part of robot operation --- that are coupled together
 by passing around \emph{messages} through use of a publish-subscribe
 mechanism.
 
-\todo{explain pub-sub}
+The publish-subscribe mechanism is a key to the flexibility of
+ROS. Various types of \emph{message} can be defined --- from numbers to
+odometry information to laser scans and many others. Messages pass
+over \emph{topics}, which are named channels that pass a specific type
+of message. For example, the interface to a laser scanner may define
+the \texttt{scan} topic, over which messages of the \texttt{LaserScan}
+type are then \emph{published} by that node. Other nodes --- such as
+a scan matcher or a visualisation system --- can \emph{subscribe} to
+the \texttt{scan} topic in order to receive the messages as they are
+published. This setup allows new nodes to be added that use the
+data without having to reconfigure the node that supplies the data.
 
 ROS also provides a \emph{transform} mechanism. Loosely, a transform
 gives the position of one frame of reference in terms of another frame
@@ -932,7 +982,7 @@ This is understood most easily through Figure~\ref{fig:rostf}.
 \end{figure}
 
 \newpage
-\section{\texttt{scan\_to\_height}}
+\subsection{\texttt{scan\_to\_height}}
 \label{sec:scan_to_height}
 
 As explained in Subsection~\ref{sec:height-meas-setup}, the last few
@@ -941,7 +991,7 @@ of height.
 
 This node splits the received laser scan (topic \texttt{/scan}) into
 two scans: \texttt{/height\_scan}, which contains just the points for
-the downward reflected height, and \texttt{/clean\_scan} - the scan
+the downward reflected height, and \texttt{/clean\_scan} --- the scan
 with the downward reflected points removed.
 
 The median of the downward points is published to
@@ -960,7 +1010,7 @@ perfect downwards angle, so there is a multiplicative error. Secondly,
 there's an additive error due to the distance between the sensor and
 the mirror, and due to losses caused by the mirror surface.
 
-\section{Scan Filtering}
+\subsection{Scan Filtering}
 \label{sec:scan-filtering}
 
 Having the laser scanner mounted in the landing gear means that
@@ -976,7 +1026,7 @@ Various other filters provided with the node were briefly explored,
 including a shadow remover, and an interpolation filter. Neither
 improved performance.
 
-\section{Polar Scan Matcher}
+\subsection{Polar Scan Matcher}
 \label{sec:polar-scan-matcher}
 
 The polar scan matcher is based on \cite{polarscanmatching}, as
@@ -989,7 +1039,7 @@ existed in the primary \texttt{scan\_tools}
 repository.\footnote{\url{https://github.com/ccny-ros-pkg/scan_tools}} A
 copy was located in another repository and copied over.
 
-Secondly, the code was old - circa ROS Electric, and would not compile
+Secondly, the code was old --- circa ROS Electric, and would not compile
 on more recent versions of ROS due to changes in various libraries,
 specifically the transform datatypes.\footnote{See:
   \url{http://wiki.ros.org/geometry/bullet_migration} and
@@ -1052,7 +1102,7 @@ performance:
 \end{description}
 
 
-\section{Tree Detection \& Localization}
+\subsection{Tree Detection \& Localization}
 \label{sec:tree-detection-localization}
 
 In keeping with the ROS philosophy of having small, specialised and
@@ -1061,7 +1111,7 @@ takes laser scans and detects trees, and one which uses the detected
 trees to correct the polar scan matching-derived position to a true
 position.
 
-\subsection{Tree Detection: \texttt{tree\_detector}}
+\subsubsection{Tree Detection: \texttt{tree\_detector}}
 \label{sec:tree_detector}
 
 The tree detector node simply detects trees from a laser scan. It
@@ -1098,7 +1148,7 @@ The process proceeds as follows:
 \item[Blur:] A gaussian blur is applied to the image. This serves two
   purposes:
   \begin{itemize}
-  \item It reduces the effect of noise on future stages - a stray
+  \item It reduces the effect of noise on future stages --- a stray
     reading will be blurred into basically nothing.
   \item A scan of a tree at a few metres distance will not be a
     contiguous line, due to the angle between the readings. This leads
@@ -1166,7 +1216,7 @@ the speed and robustness of the algorithm.
 Finally, it would be highly desirable for many of the hardcoded
 parameters to be made configurable in the standard ROS way.
 \newpage
-\subsection{Tree Localization: \texttt{tree\_fix}}
+\subsubsection{Tree Localization: \texttt{tree\_fix}}
 \label{sec:tree_fix}
 
 The \texttt{tree\_fix} node uses the tree positions published by
@@ -1262,20 +1312,25 @@ The algorithm as implemented is:
     \Return{(R, T)}
     \caption{The brute force algorithm for determining roto-translations.}
   \end{algorithm}
- 
+  \newpage
+  
   Previously, this was implemented using the \gls{SVD}
-  method. However, this was found to be less reliable,
-  because the SVD can include a \emph{reflection} as well as a
-  rotation and a translation. This is physically impossible, but due
-  to the dense and largely similar nature of the forest, it was
-  returned quite often by the SVD based algorithm. The
-  roto-translation, while vastly less efficient, is much more reliable.
+  method. However, this was found to be less reliable, because the SVD
+  can include a \emph{reflection} as well as a rotation and a
+  translation. This is physically impossible, but due to the dense and
+  largely similar nature of the forest, it was returned quite often by
+  the SVD based algorithm. The brute-force roto-translation finder
+  described, while vastly less efficient, is much more reliable.
 
 
 \item If the common set only contains one point, then a simple
-  translation is calculated, and it is assumed there is no rotation. \todo{why}
+  translation is calculated, and it is assumed there is no
+  rotation. (It is impossible to determine whether there is a rotation
+  in addition to a translation, and any rotation is likely to be small
+  relative to any translation.)
 \item If there are no points in common, the transform is assumed to be
-  the identity: no translation or rotation. \todo{why}
+  the identity: no translation or rotation, simply because it is
+  impossible to determine any transform.
 \item The translation is applied to all the uncorrected points, such
   that they become corrected points.
 \item The corrected points are then tested against the known map
@@ -1290,22 +1345,23 @@ The algorithm as implemented is:
   before being published.
 \item If less than two points were detected, the previous correction
   is republished. It is important for smooth operation that a
-  correction is published, even if it's the same - otherwise
+  correction is published, even if it's the same --- otherwise
   transforms can start to fail, leaving the system without an estimate
   of position.
 \end{itemize}
 
 Significant future work is needed on this node.  Firstly, it can be
-prone to large jumps - it would be good to replace it with some form
-of positioning that provides more smooth positioning. Perhaps this
+prone to large jumps: it would be good to integrate it with some form
+of filter that provides more smooth positioning. Perhaps this
 could be done by integrating the position information from the polar
 scan matcher and the tree matcher into a single processing node,
-utilising something like a Kalman filter. \todo{cite}
+utilising something like a Kalman filter. %\todo{cite}
 
 Secondly, it has no ability to update its idea of known trees. It
 cannot perform meaningful loop closure or indeed any form of update
-other than recognising a new tree. (As opposed to, for example,
-\todo{cite}.) This should be addressed.
+other than recognising a new tree. 
+%(As opposed to, for example, \todo{cite}.)
+This should be addressed.
 
 Lastly, this work replicates work done by others on scan matching and
 SLAM. Replacing the point matching algorithm described with a point
@@ -1316,10 +1372,14 @@ more sparse point cloud from the tree detector. Furthermore, the
 literature relating to SLAM should be consulted to allow more
 meaningful map updates.
 
-\section{Software Usage}
-\label{sec:software-usage}
 
-This sections outlines how the software was used in practise.
+%\part{Experimental Results}
+
+\chapter{Experimental Results}
+\label{cha:experimental-results}
+
+\section{Experimental Setup}
+\label{sec:experimental-setup}
 
 The onboard PC used \texttt{rosbag} to record scan data and save it to
 the onboard storage. In early stages of the project, the polar scan
@@ -1332,20 +1392,72 @@ As such, for much of the project, data was recorded on the onboard PC,
 then transferred to a low-powered laptop for processing. The
 processing was required to be real-time, using \texttt{rosbag}'s
 ability to output timestamped messages. Furthermore, any advantage
-that the laptop had by being dual-core was obviated by the significant
+that the laptop had from being dual-core was obviated by the significant
 processing requirements of \texttt{rviz}. As such, the processing that
 was run on the laptop should also run in real time with no or minimal
 tuning on the onboard computer.
 
-\part{Experimental Results}
-\chapter{Results}
-\label{cha:results}
+\subsection{Environments}
+\label{sec:environments}
 
-The system can best be understood by building it up block by
-block. This approach allows the performance of each major component to
-be understood individually.
+Three main environments were tested, all on them on the ANU
+campus. The ``tennis court'' location is a clump of trees near some
+tennis courts, and is pictured in Figure~\ref{fig:tennis-trees}. The
+``roadside'' location is another clump of trees on the ANU campus,
+pictured in Figure~\ref{fig:roadside-trees}. The clump of trees that
+forms the Research School of Information Sciences and Engineering
+(RSISE) location is shown in Figure~\ref{fig:rsise-trees}.
 
-\section{Polar Scan Matching alone: indoor}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{figs/tennis-1}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/tennis-2}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/tennis-3}\\
+  \caption{Various pictures of the ``tennis court'' clump of trees.\\
+  \textbf{Top:} View from the start of the loop (the dented metal
+  rail).\\
+  \textbf{Middle:} View from mid-way though the loop.\\
+  \textbf{Bottom:} View from towards the end of the loop.}
+  \label{fig:tennis-trees}
+\end{figure}
+
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{figs/roadside-1}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/roadside-2}\\
+  ~\\
+  \includegraphics[width=0.6\textwidth]{figs/roadside-3}\\
+  ~\\
+  \caption{Roadside trees.\\\textbf{Top:} View from near the start of
+    the loop.\\\textbf{Middle:} View from towards the end of the loop,
+  looking forwards.\\\textbf{Bottom:} View from towards the end of the
+  loop, looking backwards towards the start.}
+  \label{fig:roadside-trees}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/rsise-trees-1}\\
+  ~\\
+  \includegraphics[width=0.9\textwidth]{figs/rsise-trees-2}
+  \caption{RSISE Trees\\\textbf{Top:} View showing the front/side
+    showing the big tree, 2 front trees
+    and the 2 back trees.\\\textbf{Bottom:} View from the side, looking
+  in the opposite direction.}
+  \label{fig:rsise-trees}
+\end{figure}
+\newpage
+
+
+\section{Preliminary Tests}
+\label{sec:preliminary-tests}
+\subsection{Polar Scan Matching Alone: Indoor}
 \label{sec:psm-indoor}
 
 Firstly, consider just the polar scan matcher by itself, indoors.
@@ -1370,7 +1482,7 @@ then will have a `jump' where error rises significantly.
   \caption{Performance of polar scan matcher alone, indoors.}
   \label{fig:psm-indoors}
 \end{figure}
-
+\newpage
 A few observations can be made about the jumps:
 \begin{itemize}
 \item Part of the reason was traced back to sensor/recording
@@ -1398,8 +1510,8 @@ indoors. However, the chunking issue identified above still occurred.
 
 As indoor navigation was not a priority, merely an early way to test
 the system, no major work was invested in ironing out defects. 
-
-\section{Polar Scan Matching alone: outdoor}
+\newpage
+\subsection{Polar Scan Matching Alone: Outdoor}
 \label{sec:psm-outdoor}
 
 The polar scan matcher was then tested outdoors.
@@ -1444,38 +1556,17 @@ there is significant noise.
 \end{figure}
 
 Evidently further work was required for accurate localisation.
-\newpage~\newpage
-\section{Tree-based localization}
+\newpage
+\section{Walking Results}
 \label{sec:tree-based-local}
 
-Adding the tree-based localization described in
-Section~\ref{sec:tree-detection-localization} led to significant
-improvement in results. Two major outdoor locations were tested.
+Two major outdoor locations were tested.
 
 \subsection{Tennis Court}
 \label{sec:tennis-court}
 
-The ``tennis court'' location is a clump of trees near some tennis
-courts on the ANU campus. The trees are pictured in
-Figure~\ref{fig:tennis-trees}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.6\textwidth]{figs/tennis-1}\\
-  ~\\
-  \includegraphics[width=0.6\textwidth]{figs/tennis-2}\\
-  ~\\
-  \includegraphics[width=0.6\textwidth]{figs/tennis-3}\\
-  \caption{Various pictures of the ``tennis court'' clump of trees.\\
-  \textbf{Top:} View from the start of the loop (the dented metal
-  rail).\\
-  \textbf{Middle:} View from mid-way though the loop.\\
-  \textbf{Bottom:} View from towards the end of the loop.}
-  \label{fig:tennis-trees}
-\end{figure}
-
 The hexacopter landing gear assembly was walked in a loop through the
-clump of trees. The results---the path taken and the map of trees
+tennis court location trees. The results---the path taken and the map of trees
 detected---is shown in Figure~\ref{fig:tennis-results}. The data bag
 for this and other trials is available on the project repository.
 
@@ -1534,26 +1625,10 @@ this set of trees.
 \subsection{Roadside}
 \label{sec:roadside}
 
-The ``roadside'' location is another clump of trees on the ANU
-campus. The trees are pictured in Figure~\ref{fig:roadside-trees}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.6\textwidth]{figs/roadside-1}\\
-  ~\\
-  \includegraphics[width=0.6\textwidth]{figs/roadside-2}\\
-  ~\\
-  \includegraphics[width=0.6\textwidth]{figs/roadside-3}\\
-  ~\\
-  \caption{Roadside trees.\\\textbf{Top:} View from near the start of
-    the loop.\\\textbf{Middle:} View from towards the end of the loop,
-  looking forwards.\\\textbf{Bottom:} View from towards the end of the
-  loop, looking backwards towards the start.}
-  \label{fig:roadside-trees}
-\end{figure}
-
-Again the hexacopter landing assembly was walked in a loop, with the
-results plotted in Figure~\ref{fig:roadside-results}.
+The hexacopter assembly was walked in a loop in the ``roadside''
+location, with the results plotted in
+Figure~\ref{fig:roadside-results}. The symbols are the same as in the
+previous location.
 
 \begin{figure}
   \centering
@@ -1565,7 +1640,6 @@ results plotted in Figure~\ref{fig:roadside-results}.
   \label{fig:roadside-results}
 \end{figure}
 
-The symbols are the same as in the previous location.
 
 Points to note include:
 \begin{enumerate}[A:]
@@ -1590,8 +1664,8 @@ but does, as this example shows, tend to drift away when only one tree
 is in view. However, once that is accounted for, the accuracy is very
 good --- this time over a distance of about 60 meters each way, or
 over 120 meters in total.
-
-\subsection{Negative results}
+\newpage
+\subsection{Negative Results}
 \label{sec:negative-results}
 
 Along with the two successful results above, there were a number of
@@ -1601,7 +1675,7 @@ observations can be made, which further characterise the system.
 There are two major reasons for unsuccessful trials: sensor and
 recording errors, and algorithm errors. Recording errors will be
 detailed here, and algorithm errors discussed in
-Section~\ref{sec:analysis-results}.
+Section~\ref{cha:discussion}.
 
 There were two major sources of recording error. Firstly, the chunking
 error discussed in Section~\ref{sec:psm-indoor}. Secondly, there were some
@@ -1610,7 +1684,7 @@ route. This was mitigated by using a smaller chunk size, and
 ultimately eliminated by waiting 10--15 seconds from when the system
 started.
 
-\subsection{Conclusion --- walking only}
+\subsection{Conclusion --- Walking}
 \label{sec:concl-walk-only}
 
 The results from walking the landing gear around the two locations are
@@ -1631,8 +1705,8 @@ being walked around.
 However, just walking around leaves a few questions: can the hardware
 handle flying, especially in terms of high frequency vibrations; and
 can the software handle the extra `noise' in the data caused by flying?
-
-\section{Flying}
+\newpage
+\section{Flying Results}
 \label{sec:flying}
 
 The landing gear was attached to one of ANU's hexacopters. The
@@ -1649,23 +1723,10 @@ Two flight tests were undertaken, which are explored below.
 \label{sec:rsise}
 
 The first flight test was conducted outside the Research School of
-Information Sciences and Engineering at ANU. The clump of trees used
-is shown in Figure~\ref{fig:rsise-trees}. The hexacopter in flight is
+Information Sciences and Engineering at ANU. The hexacopter in flight is
 shown in Figure~\ref{fig:rsise-flying}.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\textwidth]{figs/rsise-trees-1}\\
-  ~\\
-  \includegraphics[width=0.9\textwidth]{figs/rsise-trees-2}
-  \caption{RSISE Trees\\\textbf{Top:} View showing the front/side
-    showing the big tree, 2 front trees
-    and the 2 back trees.\\\textbf{Bottom:} View from the side, looking
-  in the opposite direction.}
-  \label{fig:rsise-trees}
-\end{figure}
-
-\begin{figure}
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\textwidth]{figs/rsise-flying}
   \caption{The hexacopter flying near the RSISE trees. The photo was
@@ -1688,7 +1749,7 @@ particularly useful or informative. Instead,
 Figure~\ref{fig:rsise-results} shows a snapshot of the 3D path taken by
 the hexacopter, as it ascends.
 
-\begin{figure}
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\textwidth]{figs/rsise-flying-results}
   \caption{RSISE flight results, showing a snapshot of the
@@ -1750,7 +1811,7 @@ is. However, it is worth noting that the map derived is similar to the
 map derived when walking through the trees, and that the path computed
 accurately matches the path actually taken when flying the craft.
 \newpage
-\subsection{Conclusion --- flying}
+\subsection{Conclusion --- Flying}
 \label{sec:conclusion-flying}
 
 The big question remaining after the successful walking tests was
@@ -1760,11 +1821,8 @@ caused by being flown.
 The results show that the system can accurately localise itself when
 flying. 
 
-\chapter{Discussion}
+\section{Discussion}
 \label{cha:discussion}
-
-\section{Analysis of results}
-\label{sec:analysis-results}
 
 Understanding the errors in the results is not
 straightforward. Broadly, error can be categorised into \emph{sensor
@@ -1800,7 +1858,7 @@ Lastly, foliage did not seem to interact well with the PSM.
 Furthermore, errors in PSM tended to interact badly with the
 tree-based localisation: see Section~\ref{sec:interaction}.
 
-\subsection{Analysis of tree-based localization error}
+\subsection{Analysis of Tree-based Localization Error}
 \label{sec:tree-error}
 
 Tree based localisation is itself prone to two different types of
@@ -1821,16 +1879,16 @@ More broadly, the detection algorithm detecting features rather than
 circles creates problems.
 
 \begin{description}
-\item[Inability to deal with different classes of feature] Using the
+\item[Inability to deal with different classes of feature:] Using the
   minimum enclosing circle (MEC) with features means that any shape is
   treated as a circle. This makes the algorithm unsuitable to be used
   in mixed environments, and also makes it perform poorly in the
   presence of people in the field of view.
-\item[Cannot use radii] The MEC detection is quite unstable: rather
+\item[Cannot use radii:] The MEC detection is quite unstable: rather
   than detecting a stable circle with a near-stationary centre, the
   centre and especially the radius fluctuate wildly. This means the
   radius cannot be published and used for tree matching.
-\item[Cannot detect distant trees] An inevitable feature of laser
+\item[Cannot detect distant trees:] An inevitable feature of laser
   scanners is that the detected points spread out. The minimum
   detectable width of an object at 10m is 130mm with the UTM-30LX
   scanner used (see Section~\ref{sec:mk-ii}). A decent sized tree
@@ -1915,10 +1973,9 @@ errors occurring in PSM stage. If an error occurs --- even momentarily
 --- that causes a tree to be pushed away from it's proper nearest
 neighbour and into the neighbourhood of another tree, it will be
 matched with that tree, and there is presently very little way to
-recover from such an occurrence.
-
-The best way to rectify this would be to replace or integrate the
-\texttt{tree\_fix} node with a proper SLAM system.
+recover from such an occurrence. The best way to rectify this would be
+to replace or integrate the \texttt{tree\_fix} node with a proper SLAM
+system.
 
 \subsection{Flight}
 \label{sec:flight}
@@ -1942,7 +1999,7 @@ currently 1m.
 
 Future work could look at integrating the low altitude data into a
 more complete model, although it would be advisable to discard very
-low data - say below 0.5m or so.
+low data --- say below 0.5m or so.
 
 Secondly, how should other noisy/erroneous/confusing data be handled? The tennis court
 flight in particular features two kinds of noise: a person getting in
@@ -1969,14 +2026,56 @@ artefact of the particular data set --- it just managed to skip the
 problematic frames by chance. It should not be considered as a
 general approach to the problem.
 
-\section{Software: future work}
+%\part{Conclusion}
+\chapter{Conclusion}
+\label{cha:conclusion}
+
+%Your conclusion should not restate the results; instead, it should refer back 
+%to the ‘real world’ problem that motivated the study in the first place. 
+%What questions associated with that problem are you now able to answer? 
+%You may also make recommendations for further study
+
+This report set out to answer the question: 
+\begin{quote}
+  \textbf{Are laser scanners feasible for autonomous navigation of
+    hexacopters in forests?}
+\end{quote}
+
+The results and contributions of this project can be summarised as follows.
+
+In terms of hardware, this project has contributed a payload with a
+gimbal and anti-vibration mount which successfully kept the scanner
+stable when walking and when flying, such that the data was not unduly
+affected by vibrations, and accuracy was not degraded.
+
+In terms of software, this project has contributed a modified polar
+scan matcher and tree based SLAM system with the following
+characteristics:
+\begin{itemize}
+\item The modified polar scan matcher provides a position estimate in
+  a forest-like environment that is accurate in the short term but
+  drifts in the long term.
+\item The tree detection SLAM provides corrections to the position
+  that provide excellent accuracy over the long term. The system is,
+  however, somewhat unstable in the presence of error.
+\item The entire process can be completed in real time on the on-board
+  computer, without requiring that any computation be offloaded to a
+  base station.
+\end{itemize}
+
+Therefore, this project supports the conclusion that laser scanners
+can provide real-time laser odometry for autonomous navigation of
+hexacopters in forests.
+
+
+\section{Future Work: Software}
 \label{sec:softw-future-work}
 
-\subsection{Summary of key node-related work}
+\subsection{Summary of key Node-related Work}
 \label{sec:summary-key-node}
 
 A number of pieces of future work are detailed in the Software
-chapter (Chapter~\ref{sec:software}). This section seeks to highlight
+section (Section~\ref{sec:software}). This section seeks to highlight
 what is considered to be the biggest and most pressing aspects for
 future work.
 
@@ -1994,7 +2093,7 @@ of tree detection, reduce error, make it possible to provide and use
 radius data, and --- implemented carefully --- it will make the
 processing much faster.
 
-\subsection{Future directions in tree detection}
+\subsection{Future Directions in Tree Detection}
 \label{sec:future-direct-tree}
 
 The tree-detector is based around converting the scan from its polar
@@ -2098,9 +2197,9 @@ multiple versions of ROS. Those who continue this project into the
 future are strongly encouraged to take up this opportunity to bring
 modern software practises to bear on the project.
 \newpage
-\section{Discussion of hardware}
+\section{Hardware: Future Work}
 \label{sec:discussion-hardware}
-\subsection{Future work: Weight}
+\subsection{Weight}
 \label{sec:weight}
 
 A major concern regarding the hardware is the weight. Requiring 70\%
@@ -2162,7 +2261,7 @@ A 1200mAh 3 cell LiPo would weigh significantly less than the current
 3300mAh, 4 cell battery (330g). (For instance, a 1800mAh battery weighs
 in at 110g, and a 2200mAh battery weighs in at 163g.)
 
-\subsubsection{PC selection}
+\subsubsection{PC Selection}
 \label{sec:electr-gener}
 
 The previous section took as fixed the computer used in the
@@ -2242,7 +2341,7 @@ fluctuations in voltage, although this would need to be verified.
 Ultimately this may enable the system to run on a single battery,
 which would be a significant weight saving.
 
-\subsubsection{Other ways of reducing weight}
+\subsubsection{Other Ways of Reducing Weight}
 \label{sec:other-ways-reducing}
 
 As the landing gear was assembled largely as a prototype, there are
@@ -2281,7 +2380,7 @@ weight is to balance the hexacopter as a whole, which will increase
 its efficiency and make it easier to fly. This will require a
 more holistic design process than what was undertaken previously.
 
-\subsection{Landing damage}
+\subsection{Landing Damage}
 \label{sec:landing-damage}
 
 
@@ -2316,53 +2415,13 @@ too small may well have been a contributing factor. When re-fabricating
 the plate, it may also be worth considering a more durable material
 than 3mm MDF.
 
-\part{Conclusion}
-\chapter{Conclusion}
-\label{cha:conclusion}
-
-%Your conclusion should not restate the results; instead, it should refer back 
-%to the ‘real world’ problem that motivated the study in the first place. 
-%What questions associated with that problem are you now able to answer? 
-%You may also make recommendations for further study
-
-This report set out to answer the question: 
-\begin{quote}
-  \textbf{Are laser scanners feasible for autonomous navigation of
-    hexacopters in forests?}
-\end{quote}
-
-The results can be summarised as follows.
-
-In terms of hardware, the gimbal and anti-vibration mount successfully
-kept the scanner stable when walking and when flying, such that the
-data was not unduly affected by vibrations, and accuracy was not
-degraded.
-
-In terms of software:
-\begin{itemize}
-\item The modified polar scan matcher provides a position estimate in
-  a forest-like environment that is accurate in the short term but
-  drifts in the long term.
-\item The tree detection SLAM provides corrections to the position
-  that provide excellent accuracy over the long term. The system is,
-  however, somewhat unstable in the presence of error.
-\item The entire process can be completed in real time on the on-board
-  computer, without requiring that any computation be offloaded to a
-  base station.
-\end{itemize}
-
-Therefore, in conclusion, this project supports the conclusion that
-laser scanners are feasible for autonomous navigation of hexacopters
-in forests.
-
 \section{Future directions}
 \label{sec:future-work}
 
-Previous sections have considered future work in software and
-hardware. This section considers future work in the system and project
-more generally.
+This section considers future work for the system and project more
+generally.
 
-\subsection{Developing autonomy}
+\subsection{Developing Autonomy}
 \label{sec:developing-autonomy}
 
 The obvious future step for this project is to link the positioning
@@ -2375,7 +2434,7 @@ especially for takeoff and landing, as well as having a manual
 override in case of problems. However, ROS-MAVLink interaction is not
 a new area, and so existing resources can be found to aid in this process.
 
-\subsection{Other directions}
+\subsection{Other Directions}
 \label{sec:other-directions}
 
 Following \cite{achtelik2009stereo}, it would be interesting to
@@ -2425,6 +2484,7 @@ Lastly, I wish to acknowledge:
 %\input appendix
 
 \backmatter
+\addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,report}
 
