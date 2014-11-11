@@ -8,16 +8,17 @@
 %%
 %% Template thesis.tex
 %%
-\documentclass[12pt,oneside,a4paper]{book}
+\documentclass[12pt,oneside,a4paper,draft]{book}
 %\usepackage[palatino]{anuthesis}
 \usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage[left=3cm,top=2cm,bottom=2cm,right=2cm]{geometry}
+\usepackage[left=2.5cm,top=2cm,bottom=2cm,right=2.5cm]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{gensymb}
 \usepackage{thesis}
-\usepackage{cite,url,citesort}
+\usepackage{cite}
+\usepackage{url,citesort}
 \usepackage{caption}
 \usepackage[lined,boxed]{algorithm2e}
 \usepackage{enumerate}
@@ -25,7 +26,7 @@
 %\usepackage{epsfig}
 %\usepackage{makeidx}
 %\usepackage{acmnew-xref}
-
+\usepackage[toc,nonumberlist]{glossaries}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Preamble
 \title{Investigating the feasibility of laser scanners for autonomous
@@ -36,6 +37,18 @@
 \renewcommand{\thepage}{\roman{page}}
 
 %\makeindex
+
+\makeglossary
+
+\newacronym{UAV}{UAV}{Unmanned Aerial Vehicle}
+\newacronym{ROS}{ROS}{Robot Operating System}
+\newacronym{SLAM}{SLAM}{Simultaneous Localization and Mapping}
+\newacronym{IMU}{IMU}{Inertial Measurement Unit}
+\newacronym{PSM}{PSM}{Polar Scan Matching}
+\newacronym{ICP}{ICP}{Iterated Closest Point}
+\newacronym{IC}{IC}{Integrated Circuit}
+\newacronym{MDF}{MDF}{Medium Density Fibreboard}
+\newacronym{SVD}{SVD}{Singular Value Decomposition}
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,7 +66,7 @@
     \makeatother
     \LARGE ENGN4718\\
     Supervisor: Dr Jon Kim\\[2cm]
-    2014
+    November 2014
   \end{center}
 \end{titlepage}
 
@@ -84,7 +97,7 @@
 \label{sec:abstract}
 
 \begin{quote}
-  This report works towards autonomous navigation of UAVs in dense,
+  This report works towards autonomous navigation of \glspl{UAV} in dense,
   GPS denied forests by demonstrating that a laser scanner is feasible
   for estimating position. A payload for a hexacopter is built,
   mounting a gimbal-stabilised and vibration-damped laser scanner and
@@ -107,10 +120,17 @@
 \markboth{Contents}{Contents}
 \tableofcontents
 
+
+\cleardoublepage
+\pagestyle{headings}
+\markboth{Glossary}{Glossary}
+\glsaddall
+\printglossaries
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Here begins the main text
 \mainmatter
 
+\part{Introduction}
 \chapter{Aims and Contribution}
 \label{cha:aims}
 
@@ -178,7 +198,7 @@ During flight tests, the hexacopter was flown by Jon Kim.
 \section{Software}
 \label{sec:software-1}
 
-The project required significant development within the ROS
+The project required significant development within the \gls{ROS}
 environment. Chapter~\ref{sec:software} details which software
 components were new to this project, but in summary, I:
 \begin{itemize}
@@ -216,7 +236,7 @@ The following new skills were developed during this project.
 \item SolidWorks, for design of physical components.
 \item Arduino programming, for the gimbal.
 \item Flying skills
-\item Familiarity with the ROS (Robot Operating System) environment.
+\item Familiarity with the \gls{ROS} environment.
  \end{itemize}
  
 The following existing were used/developed:
@@ -280,9 +300,8 @@ monocular camera \cite{5152680}, or more commonly a stereoscopic or
 depth-perceiving camera \cite{huang2011visual}. Laser scanners are
 also a common approach \cite{achtelik2009stereo}. The absence of a
 global, absolute reference and freely available maps has led to a
-proliferation of simultaneous localization and mapping (SLAM) systems
-to convert sensor data into a position with respect to a discovered
-map.
+proliferation of \gls{SLAM} systems to convert sensor data into a
+position with respect to a discovered map.
 
 An area of considerable practical interest is outdoor navigation, and
 in particular, navigation in forests.  There are significant real-world
@@ -343,6 +362,7 @@ Chapters~\ref{sec:hardware} and \ref{sec:software} respectively. The
 test results are in Chapter~\ref{cha:results} and discussed in
 Chapter~\ref{cha:discussion}. Chapter~\ref{cha:conclusion} concludes.
 
+\part{Background}
 \chapter{Background}
 \label{cha:background}
 
@@ -425,10 +445,10 @@ that used a custom stereoscopic camera. (More detail on the laser
 based operation is given in the companion paper
 \cite{Bachrach09autonomousflight}.) 
 
-The paper compares the performance of both the laser scanner
-approach and the camera approach by using a VICON system to provide a
-`ground truth'. This approach provides for informative data, but is
-unsuitable for use outside.
+The paper compares the performance of both the laser scanner approach
+and the camera approach by using a Vicon vision capture system to
+provide a ground truth. This approach provides for informative data,
+but is unsuitable for use outside.
 
 The paper details the considerable amount of effort required to have
 the stereoscopic image processing happen in real-time. The quadrotor
@@ -463,8 +483,8 @@ weaknesses.
 
 The problem of navigation in forests is considered in
 \cite{langelaan2005towards}. Here the authors developed a SLAM
-algorithm based on an IMU and a monocular camera. The monocular camera
-is lightweight, but can only provide bearings to obstacles, not
+algorithm based on an \gls{IMU} and a monocular camera. The monocular
+camera is lightweight, but can only provide bearings to obstacles, not
 distances, complicating processing.
 
 The test bed used was a remote controlled car, rather than a copter:
@@ -500,9 +520,9 @@ are addressed.
 \label{sec:polar-scan-matching}
 
 As a key requirement of the project is to make efficient use of
-limited computational power, polar scan matching (PSM) was chosen as the
+limited computational power, \gls{PSM} was chosen as the
 primary method of scan matching, over other more well known methods
-such as Iterated Closest Point.
+such as \gls{ICP}.
 
 PSM is defined in \cite{polarscanmatching}. The key idea of PSM is to
 take advantage of the polar structure of laser scans to increase
@@ -524,6 +544,7 @@ constant over time. As such, errors accumulate that cause PSM to
 Determining the qualitative extent of this drift, and correcting for
 it, is thus a focus of this report.
 
+\part{Real-time Laser Odometry}
 \chapter{Construction: Hardware}
 \label{sec:hardware}
 
@@ -588,7 +609,7 @@ replacement platform was identified as a priority for later stages of the projec
 \label{sec:mk-ib}
 
 During development, power was accidentally connected backwards across
-the gimbal, blowing an IC on the control board. Unhelpfully, the
+the gimbal, blowing an \gls{IC} on the control board. Unhelpfully, the
 identifying marks on the ICs were ground off before the gimbal was
 shipped, so it was impossible to replace the damaged IC. Instead, the
 entire gimbal control system had to be replaced.
@@ -609,10 +630,10 @@ nylon spacers, with the small holes (M2) attaching to gimbal.
   \label{fig:gmb}
 \end{figure}
 
-This was initially laser cut out of 3mm MDF,
-however this proved too thick: the original mounting screws were too
-short to go through the board and in to the mounts below. A 2mm thick board
-proved much more successful.
+This was initially laser cut out of 3mm \gls{MDF}, however this proved too
+thick: the original mounting screws were too short to go through the
+board and in to the mounts below. A 2mm thick board proved much more
+successful.
  
 Replacing the board also necessitated removing the IMU supplied with
 the gimbal originally and installing a new one. The new IMU
@@ -1224,8 +1245,8 @@ The algorithm as implemented is:
     \Return{(R, T)}
   \end{algorithm}
  
-  Previously, this was implemented using the Singular Value
-  Decomposition method. However, this was found to be less reliable,
+  Previously, this was implemented using the \gls{SVD}
+  method. However, this was found to be less reliable,
   because the SVD can include a \emph{reflection} as well as a
   rotation and a translation. This is physically impossible, but due
   to the dense and largely similar nature of the forest, it was
@@ -1296,6 +1317,7 @@ processing requirements of \texttt{rviz}. As such, the processing that
 was run on the laptop should also run in real time with no or minimal
 tuning on the onboard computer.
 
+\part{Experimental Results}
 \chapter{Results}
 \label{cha:results}
 
@@ -2259,6 +2281,7 @@ too small may well have been a contributing factor. When re-fabricating
 the plate, it may also be worth considering a more durable material
 than 3mm MDF.
 
+\part{Conclusion}
 \chapter{Conclusion}
 \label{cha:conclusion}
 

@@ -8,3 +8,6 @@ _region_.tex
 *~
 report.pdf
 *.rel
+*.gl*
+*.idx
+*.ist
