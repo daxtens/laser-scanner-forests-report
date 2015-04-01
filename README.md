@@ -5,6 +5,6 @@ Or more verbosely: "Investigating the feasibility of laser scanners for autonomo
 
 You want `u5376292_Daniel_Axtens_Real-time_Laser_Odometry.pdf`.
 
-If you want code, you want my [`various_ros_packages`](https://github.com/daxtens/various_ros_packages) and [`scan_tools`](https://github.com/daxtens/scan_tools) repositories. They will eventually be centralised here.
+If you want code, you want my [`various-ros-packages`](https://github.com/daxtens/various-ros-packages) and [`scan_tools`](https://github.com/daxtens/scan_tools) repositories. They will eventually be centralised here.
 
 If anything is missing, please get in touch!
